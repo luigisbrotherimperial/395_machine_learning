@@ -2,7 +2,8 @@
 
 #### CW1 395 Machine Learning
 
-####################################   SetUp    ####################################
+#######################################         Setup         #######################################
+
 
 import numpy as np
 import scipy.io
@@ -19,16 +20,18 @@ emotions = {0: "anger", 1: "disgust", 2: "fear", 3: "happiness", 4: "sadness", 5
 x_noisy = noisy_data.get("x")
 y_noisy = noisy_data.get("y")
 
-####################################   Decision Tree    ####################################
+#######################################         Decision Tree         #######################################
+
+
+kids = [0, 0]
 
 
 class Tree:
-    def __init__(self, rootid):
+    def __init__(self, op):
         self.left = None
         self.right = None
-        self.rootid = rootid  # will be attributes/action units
-        self.kids = []  # counting the left and right children of the current node
-        self.op = None  # label of the attribute that is being tested
+        self.op = op  # label of the attribute that is being tested
+        self.kids = [0, 0]  # counting the left and right children of the current node
         self.label = None  # label for leaf nodes
 
     def getLeftChild(self):
@@ -46,45 +49,37 @@ class Tree:
     def getLabel(self):
         return self.label
 
-    def getNodeValue(self):
-        return self.rootid
-
-    def setNodeValue(self, value):
-        self.rootid = value
-
-    def setKids(self, value):
-        self.kids = value
+    def setOp(self, value):
+        self.op = value
 
     def setLabel(self, value):
         self.label = value
 
     def insertRight(self, newNode):
         if self.right == None:
-            self.right = Tree(newNode)
+            self.right = newNode
+            self.kids[1] = self.kids[1] + 1
         else:
-            current_tree = Tree(newNode)
-            Tree.right = self.right
-            self.right = current_tree
+            newNode.right = self.right
+            self.right = newNode
+            self.kids[1] = self.kids[1] + 1
 
     def insertLeft(self, newNode):
         if self.left == None:
-            self.left = Tree(newNode)
+            self.left = newNode
+            self.kids[0] = self.kids[0] + 1
         else:
-            current_tree = Tree(newNode)
-            self.left = current_tree
-            tree.left = self.left
+            newNode.left = self.left
+            self.left = newNode
+            self.kids[0] = self.kids[0] + 1
+
 
 def printTree(tree):
     if tree != None:
+        print(tree.getOp())
+        print()
         printTree(tree.getLeftChild())
-        print(tree.getNodeValue())
         printTree(tree.getRightChild())
-
-myTree = Tree(43)
-myTree.insertLeft(41)
-myTree.insertRight(21)
-myTree.insertRight(20)
-printTree(myTree)
 
 
 def subset(x_data, y_data, target):
@@ -92,12 +87,11 @@ def subset(x_data, y_data, target):
     #                     N examples and A attributes
     # y_data(array[N]):   the labeled data for all N examples
     # target(range(1,7)): the target emotion
-    # output:             a target vector, which has 0 for all y_data != target and
-    #                                                1 for all y_data == target
     bool_array = y_data == target
     binary_target = np.zeros(x_data.shape[0])
     binary_target[bool_array[:, 0]] = 1
     return binary_target
+
 
 bin_anger = subset(x_clean, y_clean, 1)
 bin_disgust = subset(x_clean, y_clean, 2)
@@ -106,13 +100,13 @@ bin_happiness = subset(x_clean, y_clean, 4)
 bin_sadness = subset(x_clean, y_clean, 5)
 bin_surprise = subset(x_clean, y_clean, 6)
 
+
 def entropy(p, n):
-    # p = number of positive examples
-    if (p + n) == 0: # to avoid division with 0
+    if (p + n) == 0:
         return 0
-    elif p == 0:     # to avoid division with 0
+    elif p == 0:
         return - n / (p + n) * np.log2(n / (p + n))
-    elif n == 0:     # to avoid division with 0
+    elif n == 0:
         return -p / (p + n) * np.log2(p / (p + n))
     else:
         return -p / (p + n) * np.log2(p / (p + n)) - n / (p + n) * np.log2(n / (p + n))
@@ -124,7 +118,6 @@ def choose_best_decision_attribute(examples, attributes, binary_target):
     n = len(binary_target) - p
     I = entropy(p, n)
     max_index = -1
-    print("initial entropy = " + str(I) + "\n")
     for i in range(len(attributes)):
         # the number of positive examples for the subset of the training data
         # for which the attribute has the value 0
@@ -146,59 +139,74 @@ def choose_best_decision_attribute(examples, attributes, binary_target):
     return max_index
 
 
-choose_best_decision_attribute(x_clean, np.zeros(45), bin_anger)
-
-import collections
-
-
 def decision_tree_learning(examples, attributes, binary_target):
     # examples (array[N,A])     : examples with N number of examples,
     #                             A number of attributes (Action Units)
     # attributes (array[1,A])   : a vector with all available attributes A
     # binary_target (array[N,1]):
     if np.all(binary_target == binary_target[0], axis=0):
-        print("all the same")
-        return (binary_target[0])
+        tree = Tree(int(binary_target[0]))
+        tree.setLabel(int(binary_target[0]))
+        return tree
     elif len(attributes) == 0:
-        print("attributes are empty")
-        return (round(np.sum(binary_target)))
+        tree = Tree(int(round(np.sum(binary_target) / len(binary_target))))
+        tree.setLabel(int(round(np.sum(binary_target) / len(binary_target))))
+        return tree
     else:
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
-        current_attribute = attributes[best_attribute]
         tree = Tree(attributes[best_attribute])
-        del (attributes[best_attribute])
+        attributes = np.delete(attributes, best_attribute)
 
         examples_0 = examples[examples[:, best_attribute] == 0]
         examples_0 = np.delete(examples_0, best_attribute, 1)
         binary_target0 = binary_target[examples[:, best_attribute] == 0]
-        print("binary_target0" + str(collections.Counter(binary_target0)))
-        if len(examples_0) == 0:
-            tree.setLabel(0)
-        else:
-            tree.setNodeValue(current_attribute)
-            tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
 
         examples_1 = examples[examples[:, best_attribute] == 1]
         examples_1 = np.delete(examples_1, best_attribute, 1)
         binary_target1 = binary_target[examples[:, best_attribute] == 1]
 
-        print("binary_target1" + str(collections.Counter(binary_target1)))
+        if len(examples_0) == 0:
+            tree.setLabel(0)
+        else:
+            tree.setOp(best_attribute)
+            tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
 
-        if len(examples_1):
+        if len(examples_1) == 0:
             tree.setLabel(1)
         else:
-            tree.setNodeValue(current_attribute)
+            tree.setOp(best_attribute)
             tree.insertRight(decision_tree_learning(examples_1, attributes, binary_target1))
+
     return tree
 
+dec_tree = decision_tree_learning(x_clean[500:1000], range(45), bin_anger[500:1000])
 
-action_units = []
-for i in range(x_clean.shape[1]):
-    action_units.append("AU" + str(i))
-dec_tree = decision_tree_learning(x_clean, action_units, bin_anger)
+#######################################         Prediction         #######################################
 
-####################################   Tests    ####################################
+def prediction(decision_tree, x_data):
+    while decision_tree.getLabel() == None:
+        op = decision_tree.getOp()
+        if (x_data[op] == 0):
+            decision_tree = decision_tree.getLeftChild()
+        else:
+            decision_tree = decision_tree.getRightChild()
+    return decision_tree.getLabel()
 
 
+#######################################         Test         #######################################
 
-####################################   K-fold Cross validation    ####################################
+
+y_test = bin_anger[500:1000]
+
+x_test = x_clean[500:1000]
+
+
+def test_accuracy(x_test, y_test):
+    predictions = []
+    for i in range(x_test.shape[0]):
+        predictions.append(prediction(dec_tree, x_test[i]))
+    predictions = np.array(predictions)
+    return np.sum(predictions == y_test) / len(y_test)
+
+
+print("test accuracy = " + str(test_accuracy(x_test, y_test)))

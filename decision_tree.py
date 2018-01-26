@@ -1,9 +1,8 @@
 # coding: utf-8
 
-# ### CW1 395 Machine Learning
+#### CW1 395 Machine Learning
 
-# ### Setup
-
+####################################   SetUp    ####################################
 
 import numpy as np
 import scipy.io
@@ -20,8 +19,8 @@ emotions = {0: "anger", 1: "disgust", 2: "fear", 3: "happiness", 4: "sadness", 5
 x_noisy = noisy_data.get("x")
 y_noisy = noisy_data.get("y")
 
+####################################   Decision Tree    ####################################
 
-# ### Decision Tree:
 
 class Tree:
     def __init__(self, rootid):
@@ -64,7 +63,7 @@ class Tree:
             self.right = Tree(newNode)
         else:
             current_tree = Tree(newNode)
-            current_tree.right = self.right
+            Tree.right = self.right
             self.right = current_tree
 
     def insertLeft(self, newNode):
@@ -73,7 +72,7 @@ class Tree:
         else:
             current_tree = Tree(newNode)
             self.left = current_tree
-            current_tree.left = self.left
+            tree.left = self.left
 
 def printTree(tree):
     if tree != None:
@@ -93,6 +92,8 @@ def subset(x_data, y_data, target):
     #                     N examples and A attributes
     # y_data(array[N]):   the labeled data for all N examples
     # target(range(1,7)): the target emotion
+    # output:             a target vector, which has 0 for all y_data != target and
+    #                                                1 for all y_data == target
     bool_array = y_data == target
     binary_target = np.zeros(x_data.shape[0])
     binary_target[bool_array[:, 0]] = 1
@@ -105,8 +106,49 @@ bin_happiness = subset(x_clean, y_clean, 4)
 bin_sadness = subset(x_clean, y_clean, 5)
 bin_surprise = subset(x_clean, y_clean, 6)
 
-print(np.sum(bin_anger) + np.sum(bin_disgust) + np.sum(bin_fear) + np.sum(bin_happiness) + np.sum(bin_sadness) + np.sum(
-    bin_surprise))
+def entropy(p, n):
+    # p = number of positive examples
+    if (p + n) == 0: # to avoid division with 0
+        return 0
+    elif p == 0:     # to avoid division with 0
+        return - n / (p + n) * np.log2(n / (p + n))
+    elif n == 0:     # to avoid division with 0
+        return -p / (p + n) * np.log2(p / (p + n))
+    else:
+        return -p / (p + n) * np.log2(p / (p + n)) - n / (p + n) * np.log2(n / (p + n))
+
+
+def choose_best_decision_attribute(examples, attributes, binary_target):
+    max_gain = -1
+    p = np.sum(binary_target)
+    n = len(binary_target) - p
+    I = entropy(p, n)
+    max_index = -1
+    print("initial entropy = " + str(I) + "\n")
+    for i in range(len(attributes)):
+        # the number of positive examples for the subset of the training data
+        # for which the attribute has the value 0
+        p0 = np.sum(binary_target[examples[:, i] == 0] == 1)
+        # the number of negative examples for the subset of the training data
+        # for which the attribute has the value 0
+        n0 = np.sum(binary_target[examples[:, i] == 0] == 0)
+        # the number of positive examples for the subset of the training data
+        # for which the attribute has the value 1
+        p1 = np.sum(binary_target[examples[:, i] == 1] == 1)
+        # the number of negative examples for the subset of the training data
+        # for which the attribute has the value 1
+        n1 = np.sum(binary_target[examples[:, i] == 1] == 0)
+        current_remainder = (p0 + n0) / (p + n) * entropy(p0, n0) + (p1 + n1) / (p + n) * entropy(p1, n1)
+        current_gain = I - current_remainder
+        if current_gain > max_gain:
+            max_gain = current_gain
+            max_index = i
+    return max_index
+
+
+choose_best_decision_attribute(x_clean, np.zeros(45), bin_anger)
+
+import collections
 
 
 def decision_tree_learning(examples, attributes, binary_target):
@@ -114,8 +156,49 @@ def decision_tree_learning(examples, attributes, binary_target):
     #                             A number of attributes (Action Units)
     # attributes (array[1,A])   : a vector with all available attributes A
     # binary_target (array[N,1]):
-    return
+    if np.all(binary_target == binary_target[0], axis=0):
+        print("all the same")
+        return (binary_target[0])
+    elif len(attributes) == 0:
+        print("attributes are empty")
+        return (round(np.sum(binary_target)))
+    else:
+        best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
+        current_attribute = attributes[best_attribute]
+        tree = Tree(attributes[best_attribute])
+        del (attributes[best_attribute])
+
+        examples_0 = examples[examples[:, best_attribute] == 0]
+        examples_0 = np.delete(examples_0, best_attribute, 1)
+        binary_target0 = binary_target[examples[:, best_attribute] == 0]
+        print("binary_target0" + str(collections.Counter(binary_target0)))
+        if len(examples_0) == 0:
+            tree.setLabel(0)
+        else:
+            tree.setNodeValue(current_attribute)
+            tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
+
+        examples_1 = examples[examples[:, best_attribute] == 1]
+        examples_1 = np.delete(examples_1, best_attribute, 1)
+        binary_target1 = binary_target[examples[:, best_attribute] == 1]
+
+        print("binary_target1" + str(collections.Counter(binary_target1)))
+
+        if len(examples_1):
+            tree.setLabel(1)
+        else:
+            tree.setNodeValue(current_attribute)
+            tree.insertRight(decision_tree_learning(examples_1, attributes, binary_target1))
+    return tree
 
 
-# ### K-folds Cross Validation
+action_units = []
+for i in range(x_clean.shape[1]):
+    action_units.append("AU" + str(i))
+dec_tree = decision_tree_learning(x_clean, action_units, bin_anger)
 
+####################################   Tests    ####################################
+
+
+
+####################################   K-fold Cross validation    ####################################

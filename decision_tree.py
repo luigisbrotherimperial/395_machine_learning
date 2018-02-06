@@ -23,9 +23,6 @@ y_noisy = noisy_data.get("y")
 #######################################         Decision Tree         #######################################
 
 
-kids = [0, 0]
-
-
 class Tree:
     def __init__(self, op):
         self.left = None
@@ -169,18 +166,29 @@ def decision_tree_learning(examples, attributes, binary_target):
         if len(examples_0) == 0:
             tree.setLabel(0)
         else:
-            tree.setOp(op)
             tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
 
         if len(examples_1) == 0:
             tree.setLabel(1)
         else:
-            tree.setOp(op)
             tree.insertRight(decision_tree_learning(examples_1, attributes, binary_target1))
 
     return tree
 
-dec_tree = decision_tree_learning(x_clean[500:1000], range(45), bin_anger[500:1000])
+
+
+
+#######################################         Learning         #######################################
+
+
+dec_tree_anger     = decision_tree_learning(x_clean, range(45), bin_anger)
+dec_tree_disgust   = decision_tree_learning(x_clean, range(45), bin_disgust)
+dec_tree_fear      = decision_tree_learning(x_clean, range(45), bin_fear)
+dec_tree_happiness = decision_tree_learning(x_clean, range(45), bin_happiness)
+dec_tree_sadness   = decision_tree_learning(x_clean, range(45), bin_sadness)
+dec_tree_surprise   = decision_tree_learning(x_clean, range(45), bin_surprise)
+
+# TODO: Visualization of the trees:
 
 #######################################         Prediction         #######################################
 
@@ -194,19 +202,28 @@ def prediction(decision_tree, x_data):
     return decision_tree.getLabel()
 
 
-#######################################         Test         #######################################
+#######################################         Test1         #######################################
 
-
-y_test = bin_anger[500:1000]
-
+# for perfectly trained trees:
 x_test = x_clean[500:1000]
+y_test_anger = bin_anger[500:1000]
+y_test_disgust = bin_disgust[500:1000]
+y_test_fear = bin_fear[500:1000]
+y_test_happiness = bin_happiness[500:1000]
+y_test_sadness = bin_sadness[500:1000]
+y_test_surprise = bin_surprise[500:1000]
 
 
-def test_accuracy(x_test, y_test):
+def test_accuracy(x_test, y_test, decision_tree):
     predictions = []
     for i in range(x_test.shape[0]):
-        predictions.append(prediction(dec_tree, x_test[i]))
+        predictions.append(prediction(decision_tree, x_test[i]))
     predictions = np.array(predictions)
     return np.sum(predictions == y_test) / len(y_test)
 
-print("test accuracy = " + str(test_accuracy(x_test, y_test)))
+print("test accuracy for perfect decision tree (anger)     = " + str(test_accuracy(x_test, y_test_anger, dec_tree_anger)*100)+str("%%"))
+print("test accuracy for perfect decision tree (disgust)   = " + str(test_accuracy(x_test, y_test_disgust, dec_tree_disgust)*100)+str("%%"))
+print("test accuracy for perfect decision tree (fear)      = " + str(test_accuracy(x_test, y_test_fear, dec_tree_fear)*100)+str("%%"))
+print("test accuracy for perfect decision tree (happiness) = " + str(test_accuracy(x_test, y_test_happiness, dec_tree_happiness)*100)+str("%%"))
+print("test accuracy for perfect decision tree (sadness)   = " + str(test_accuracy(x_test, y_test_sadness, dec_tree_sadness)*100)+str("%%"))
+print("test accuracy for perfect decision tree (surprise)  = " + str(test_accuracy(x_test, y_test_surprise, dec_tree_surprise)*100)+str("%%"))

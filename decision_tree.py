@@ -154,7 +154,8 @@ def decision_tree_learning(examples, attributes, binary_target):
         return tree
     else:
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
-        tree = Tree(attributes[best_attribute])
+        op = attributes[best_attribute]
+        tree = Tree(op)
         attributes = np.delete(attributes, best_attribute)
 
         examples_0 = examples[examples[:, best_attribute] == 0]
@@ -168,13 +169,13 @@ def decision_tree_learning(examples, attributes, binary_target):
         if len(examples_0) == 0:
             tree.setLabel(0)
         else:
-            tree.setOp(best_attribute)
+            tree.setOp(op)
             tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
 
         if len(examples_1) == 0:
             tree.setLabel(1)
         else:
-            tree.setOp(best_attribute)
+            tree.setOp(op)
             tree.insertRight(decision_tree_learning(examples_1, attributes, binary_target1))
 
     return tree
@@ -207,6 +208,5 @@ def test_accuracy(x_test, y_test):
         predictions.append(prediction(dec_tree, x_test[i]))
     predictions = np.array(predictions)
     return np.sum(predictions == y_test) / len(y_test)
-
 
 print("test accuracy = " + str(test_accuracy(x_test, y_test)))

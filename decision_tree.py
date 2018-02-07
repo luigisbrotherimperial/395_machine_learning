@@ -256,9 +256,12 @@ def testTrees2(T,x_data):
         return choice(predicted_emotions)
 
 prediction_all_emotions = []
+
 for i in range(x_clean.shape[0]):
     prediction_all_emotions.append(testTrees(trees, x_clean[i]))
+    
 prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_clean.shape[0], 1])
+
 print("test accuracy for perfect decision tree (all emotions) = " + str(round(np.sum(prediction_all_emotions == y_clean)/len(y_clean), 2)*100) + str("%%"))
 
 
@@ -280,3 +283,23 @@ def k_fold_cross_validation(k, x_data, y_data):
 # this would return 60 trained trees. the first 10 trees are trained on anger, the second 10 trees on disgust, ...
 # k_trees = k_fold_cross_validation(10, x_clean, y_clean)
 # TODO: use either for confusion matrix or average values (you can build it directly into k_fold_cross_validation)
+
+
+#######################################         confusion matrix         #######################################
+
+def confusion_matrix(predicted, actual):
+    
+    #predefine the confusion matrix
+    cmat=np.zeros((6,6))
+    print(cmat.shape)
+      
+    #increment the matrix
+    for i in range(len(predicted)):
+        cmat[actual[i]-1, predicted[i]-1]+=1  
+      
+    #return the confusion matrix
+    print(cmat)
+    return cmat 
+    
+#test confusion  matrix
+confusion_matrix(prediction_all_emotions, y_clean)

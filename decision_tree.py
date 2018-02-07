@@ -1,29 +1,6 @@
-# coding: utf-8
-
-#### CW1 395 Machine Learning
-
-#######################################         Setup         #######################################
-
-
 import numpy as np
-import scipy.io
 from random import randint, choice
-
-clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
-noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
-
-x_clean = clean_data.get("x")
-print("n_examples = " + str(x_clean.shape[0]) + " action_units = " + str(x_clean.shape[1]))
-
-y_clean = clean_data.get("y")
-emotions = {0: "anger", 1: "disgust", 2: "fear", 3: "happiness", 4: "sadness", 5: "surprise"}
-
-x_noisy = noisy_data.get("x")
-y_noisy = noisy_data.get("y")
-
 #######################################         Decision Tree         #######################################
-
-
 class Tree:
     def __init__(self, op):
         self.op = op  # label of the attribute that is being tested
@@ -57,7 +34,6 @@ def printTree(tree):
         printTree(tree.getLeftChild())
         printTree(tree.getRightChild())
 
-
 def subset(x_data, y_data, target):
     # x_data(array[N,A]): the data for which a subset should be created with
     #                     N examples and A attributes
@@ -67,14 +43,6 @@ def subset(x_data, y_data, target):
     binary_target = np.zeros(x_data.shape[0])
     binary_target[bool_array[:, 0]] = 1
     return binary_target
-
-
-bin_anger = subset(x_clean, y_clean, 1)
-bin_disgust = subset(x_clean, y_clean, 2)
-bin_fear = subset(x_clean, y_clean, 3)
-bin_happiness = subset(x_clean, y_clean, 4)
-bin_sadness = subset(x_clean, y_clean, 5)
-bin_surprise = subset(x_clean, y_clean, 6)
 
 
 def entropy(p, n):
@@ -179,21 +147,6 @@ def decision_tree_learning(examples, attributes, binary_target):
             
     return tree
 
-
-
-
-#######################################         Learning         #######################################
-
-
-dec_tree_anger     = decision_tree_learning(x_clean, range(45), bin_anger)
-dec_tree_disgust   = decision_tree_learning(x_clean, range(45), bin_disgust)
-dec_tree_fear      = decision_tree_learning(x_clean, range(45), bin_fear)
-dec_tree_happiness = decision_tree_learning(x_clean, range(45), bin_happiness)
-dec_tree_sadness   = decision_tree_learning(x_clean, range(45), bin_sadness)
-dec_tree_surprise   = decision_tree_learning(x_clean, range(45), bin_surprise)
-
-# TODO: Visualization of the trees:
-
 #######################################         Prediction         #######################################
 
 def prediction(decision_tree, x_data):
@@ -206,18 +159,6 @@ def prediction(decision_tree, x_data):
     return decision_tree.getLabel()
 
 
-#######################################         Test general setup         #######################################
-
-# for perfectly trained trees:
-x_test = x_clean[500:1000]
-y_test_anger = bin_anger[500:1000]
-y_test_disgust = bin_disgust[500:1000]
-y_test_fear = bin_fear[500:1000]
-y_test_happiness = bin_happiness[500:1000]
-y_test_sadness = bin_sadness[500:1000]
-y_test_surprise = bin_surprise[500:1000]
-
-
 def test_accuracy(x_test, y_test, decision_tree):
     predictions = []
     for i in range(x_test.shape[0]):
@@ -225,24 +166,13 @@ def test_accuracy(x_test, y_test, decision_tree):
     predictions = np.array(predictions)
     return np.sum(predictions == y_test) / len(y_test)
 
-print("test accuracy for perfect decision tree (anger)     = " + str(test_accuracy(x_test, y_test_anger, dec_tree_anger)*100)+str("%%"))
-print("test accuracy for perfect decision tree (disgust)   = " + str(test_accuracy(x_test, y_test_disgust, dec_tree_disgust)*100)+str("%%"))
-print("test accuracy for perfect decision tree (fear)      = " + str(test_accuracy(x_test, y_test_fear, dec_tree_fear)*100)+str("%%"))
-print("test accuracy for perfect decision tree (happiness) = " + str(test_accuracy(x_test, y_test_happiness, dec_tree_happiness)*100)+str("%%"))
-print("test accuracy for perfect decision tree (sadness)   = " + str(test_accuracy(x_test, y_test_sadness, dec_tree_sadness)*100)+str("%%"))
-print("test accuracy for perfect decision tree (surprise)  = " + str(test_accuracy(x_test, y_test_surprise, dec_tree_surprise)*100)+str("%%"))
-
-
-#######################################         Test all emotions         #######################################
-
-trees = [dec_tree_anger, dec_tree_disgust, dec_tree_fear, dec_tree_happiness, dec_tree_sadness, dec_tree_surprise]
 
 def testTrees(T,x_data):
     # Choose first emotion found
     for i in range(6):
         if prediction(T[i], x_data) == 1:
             return i+1
-    return randint(1,7)
+    return randint(1,6)
 
 def testTrees2(T,x_data):
     # Choose randomly from predicted emotions
@@ -251,19 +181,9 @@ def testTrees2(T,x_data):
         if prediction(T[i], x_data) == 1:
             predicted_emotions.append(i+1)
     if len(predicted_emotions) == 0:
-        return randint(1, 7)
+        return randint(1, 6)
     else:
         return choice(predicted_emotions)
-
-prediction_all_emotions = []
-
-for i in range(x_clean.shape[0]):
-    prediction_all_emotions.append(testTrees(trees, x_clean[i]))
-    
-prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_clean.shape[0], 1])
-
-print("test accuracy for perfect decision tree (all emotions) = " + str(round(np.sum(prediction_all_emotions == y_clean)/len(y_clean), 2)*100) + str("%%"))
-
 
 #######################################         k-folds cross validation         #######################################
 
@@ -300,6 +220,8 @@ def confusion_matrix(predicted, actual):
     #return the confusion matrix
     return cmat 
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #######################################         recall        #######################################
 
 def recall(conf_mnatrix):
@@ -339,3 +261,7 @@ def precision(conf_mnatrix):
 #print(cmat)
 #recall(cmat)
 #precision(cmat)
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes

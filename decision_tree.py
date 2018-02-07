@@ -9,8 +9,8 @@ import numpy as np
 import scipy.io
 from random import randint
 
-clean_data = scipy.io.loadmat("/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW1/Data/cleandata_students.mat")
-noisy_data = scipy.io.loadmat("/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW1/Data/noisydata_students.mat")
+clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
+noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
 
 x_clean = clean_data.get("x")
 print("n_examples = " + str(x_clean.shape[0]) + " action_units = " + str(x_clean.shape[1]))
@@ -147,7 +147,7 @@ def choose_best_decision_attribute(examples, attributes, binary_target):
         n1 = np.sum(binary_target[examples[:, i] == 1] == 0)
         current_remainder = (p0 + n0) / (p + n) * entropy(p0, n0) + (p1 + n1) / (p + n) * entropy(p1, n1)
         current_gain = I - current_remainder
-        if current_gains > max_gain:
+        if current_gain > max_gain:
             max_gain = current_gain
             max_index = i
     return max_index

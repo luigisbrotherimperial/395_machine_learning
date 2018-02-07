@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f5c791c5-6459-4028-b06f-9c54d68ee60c" name="Default" comment="" />
+    <list default="true" id="f5c791c5-6459-4028-b06f-9c54d68ee60c" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/decision_tree.py" afterPath="$PROJECT_DIR$/decision_tree.py" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +18,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-2">
               <caret line="217" column="40" lean-forward="true" selection-start-line="217" selection-start-column="40" selection-end-line="217" selection-end-column="40" />
-              <folding />
+              <folding>
+                <element signature="e#152#170#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -39,8 +43,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="78" />
-    <option name="y" value="24" />
+    <option name="x" value="334" />
+    <option name="y" value="23" />
     <option name="width" value="1507" />
     <option name="height" value="931" />
   </component>
@@ -103,7 +107,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="78" y="24" width="1507" height="931" extended-state="0" />
+    <frame x="334" y="23" width="1507" height="931" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25665528" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -165,7 +169,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2">
           <caret line="217" column="40" lean-forward="true" selection-start-line="217" selection-start-column="40" selection-end-line="217" selection-end-column="40" />
-          <folding />
+          <folding>
+            <element signature="e#152#170#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

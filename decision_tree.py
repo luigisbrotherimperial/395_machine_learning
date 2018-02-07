@@ -239,7 +239,7 @@ def recall(conf_mnatrix):
     
 #######################################         precision        #######################################
 
-def precision(conf_mnatrix):
+def precision(conf_matrix):
      
     #initialize the precision rate array
     rate = np.zeros((6))
@@ -247,15 +247,45 @@ def precision(conf_mnatrix):
     #compute the precision rate for each class
     for i in range(6):
         
-        rate[i] = conf_mnatrix[i, i]*100/sum(conf_mnatrix[:, i])
+        rate[i] = conf_matrix[i, i]*100/sum(conf_matrix[:, i])
      
     #return the precision rate  
     #print(rate)      
     return rate   
  
  
-#USED TO TEST       
-#cmat = confusion_matrix(prediction_all_emotions, y_clean)
-#print(cmat)
-#recall(cmat)
-#precision(cmat)
+#######################################         F1 mesure        ####################################### 
+ 
+def f1_measure(precision_rate, recall_rate):
+     
+    #initialize the Fa measure array
+    rate = np.zeros((6))
+    
+    #compute the Fa measure for each class
+    for i in range(6):
+        
+        rate[i] = 2*precision_rate[i]*recall_rate[i]/(precision_rate[i]+recall_rate[i])
+     
+    #return the Fa measure  
+    print(rate)      
+    return rate   
+    
+#######################################         classification rate        #######################################    
+
+def classification_rate(conf_matrix):
+    
+    #compute the classification rate 
+
+    rate = sum(conf_matrix.diagonal())/conf_matrix.sum()
+     
+    #return the classification rate  
+    print('rate', rate)      
+    return rate      
+     
+#USED TO TEST   
+cmat = confusion_matrix(prediction_all_emotions, y_clean)
+print(cmat)
+recall_rate = recall(cmat)
+precision_rate = precision(cmat)
+f1_measure(precision_rate, recall_rate)
+classification_rate(cmat)

@@ -9,8 +9,8 @@ import numpy as np
 import scipy.io
 from random import randint
 
-clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
-noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
+clean_data = scipy.io.loadmat("/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW1/Data/cleandata_students.mat")
+noisy_data = scipy.io.loadmat("/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW1/Data/noisydata_students.mat")
 
 x_clean = clean_data.get("x")
 print("n_examples = " + str(x_clean.shape[0]) + " action_units = " + str(x_clean.shape[1]))
@@ -56,11 +56,15 @@ class Tree:
     def setKids(self, value):
         self.kids = value
 
+    # TODO change right/left
     def insertRight(self, newNode):
         if self.right == None:
             self.right = newNode
             self.kids[1] = self.kids[1] + 1
         else:
+            
+            #ASK
+            print('weird')
             newNode.right = self.right
             self.right = newNode
             self.kids[1] = self.kids[1] + 1
@@ -70,6 +74,9 @@ class Tree:
             self.left = newNode
             self.kids[0] = self.kids[0] + 1
         else:
+            
+            #ASK
+            print('weird')
             newNode.left = self.left
             self.left = newNode
             self.kids[0] = self.kids[0] + 1
@@ -111,6 +118,12 @@ def entropy(p, n):
         return -p / (p + n) * np.log2(p / (p + n))
     else:
         return -p / (p + n) * np.log2(p / (p + n)) - n / (p + n) * np.log2(n / (p + n))
+        
+
+#CHANGED! new function added         
+def majority_value(binary_target):
+    
+    return int(round(np.sum(binary_target) / len(binary_target)))
 
 
 def choose_best_decision_attribute(examples, attributes, binary_target):
@@ -134,7 +147,7 @@ def choose_best_decision_attribute(examples, attributes, binary_target):
         n1 = np.sum(binary_target[examples[:, i] == 1] == 0)
         current_remainder = (p0 + n0) / (p + n) * entropy(p0, n0) + (p1 + n1) / (p + n) * entropy(p1, n1)
         current_gain = I - current_remainder
-        if current_gain > max_gain:
+        if current_gains > max_gain:
             max_gain = current_gain
             max_index = i
     return max_index
@@ -146,13 +159,23 @@ def decision_tree_learning(examples, attributes, binary_target):
     # attributes (array[1,A])   : a vector with all available attributes A
     # binary_target (array[N,1]):
     if np.all(binary_target == binary_target[0], axis=0):
-        tree = Tree(int(binary_target[0]))
+        
+        #CHANGED - leaf node empty op
+        tree = Tree('')
         tree.setLabel(int(binary_target[0]))
         return tree
     elif len(attributes) == 0:
-        tree = Tree(int(round(np.sum(binary_target) / len(binary_target))))
-        tree.setLabel(int(round(np.sum(binary_target) / len(binary_target))))
+        
+        #CHANGED
+        mode = majority_value(binary_target)
+        
+        #CHANGED - leaf node empty op
+        tree = Tree('')
+        tree.setLabel(mode)
+        
         return tree
+        
+        
     else:
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
         op = attributes[best_attribute]
@@ -167,20 +190,27 @@ def decision_tree_learning(examples, attributes, binary_target):
         examples_1 = np.delete(examples_1, best_attribute, 1)
         binary_target1 = binary_target[examples[:, best_attribute] == 1]
 
-        if len(examples_0) == 0:
-            tree.setLabel(0)
+
+        #CHANGED! 
+        if (len(examples_0) == 0) or (len(examples_1) == 0):
+            
+            #CHANGED! 
+            mode = majority_value(binary_target)
+            
+            #CHANGED - leaf node empty op
+            tree = Tree('')
+            tree.setLabel(mode)
+            
         else:
             # TODO: count Kids!
             leftTree = decision_tree_learning(examples_0, attributes, binary_target0)
             tree.setKids([leftTree.getKids()[0]+1, leftTree.getKids()[1]])
             tree.insertLeft(leftTree)
 
-        if len(examples_1) == 0:
-            tree.setLabel(1)
-        else:
             rightTree = decision_tree_learning(examples_1, attributes, binary_target1)
             tree.setKids([rightTree.getKids()[0], rightTree.getKids()[1]+1])
             tree.insertRight(rightTree)
+            
     return tree
 
 
@@ -274,4 +304,3 @@ def k_fold_cross_validation(k, x_data, y_data):
 # this would return 60 trained trees. the first 10 trees are trained on anger, the second 10 trees on disgust, ...
 # k_trees = k_fold_cross_validation(10, x_clean, y_clean)
 # TODO: use either for confusion matrix or average values (you can build it directly into k_fold_cross_validation)
-

@@ -202,8 +202,10 @@ def k_fold_cross_validation_OLD(k, x_data, y_data):
 
 def k_fold_cross_validation(k, x_data, y_data):
     conf_mat = np.zeros((6,6))
-    precision = 0
-    recall = 0
+    precision_rate = np.zeros((6))
+    recall_rate = np.zeros((6))
+    f1_measure_rate = np.zeros((6))
+    class_rate = 0
 
     fold_size = int(np.floor(x_data.shape[0]/k))
 
@@ -213,6 +215,9 @@ def k_fold_cross_validation(k, x_data, y_data):
         x_train = np.append(x_data[0:i*fold_size], x_data[(i+1)*fold_size:], axis = 0)
         y_train = np.append(y_data[0:i*fold_size], y_data[(i+1)*fold_size:], axis = 0)
 
+        x_test = x_data[i*fold_size:(i+1)*fold_size, :]
+        y_test = y_data[i*fold_size:(i+1)*fold_size]
+
         # train tree for each emotion on k-1 parts
         tree_list = []
         for emotion in range(1, 7):
@@ -221,20 +226,23 @@ def k_fold_cross_validation(k, x_data, y_data):
             tree_list.append(dec_tree)
 
         # predict on kth part
-        prediction_all_emotions = []
-        for j in range(x_train.shape[0]):
-            prediction_all_emotions.append(testTrees(tree_list, x_train[i]))
-        prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_train.shape[0], 1])
+        pred_all_emotions = []
+        for j in range(x_test.shape[0]):
+            pred_all_emotions.append(testTrees(tree_list, x_test[j]))
+        pred_all_emotions = np.reshape(np.array(pred_all_emotions), [x_test.shape[0], 1])
 
         # get accuracy
-        ## TODO: calculate evaluation metrics here and sum
-        conf_mat += np.zeros((6,6))
-        precision += 0.1234
-        recall += 0.1234
+        conf_mat += confusion_matrix(pred_all_emotions, y_test)
+        precision_rate += precision(conf_mat)
+        recall_rate += recall(conf_mat)
+        f1_measure_rate += f1_measure(precision_rate, recall_rate)
+        class_rate += classification_rate(conf_mat)
 
-    print("Average confusion matrix:", conf_mat/k)
-    print("Average precision:", precision/k)
-    print("Average recall:", recall/k)
+    print("Average confusion matrix:\n", conf_mat/k)
+    print("Average precision:", precision_rate/k)
+    print("Average recall:", recall_rate/k)
+    print("Average f1_measure:", f1_measure_rate/k)
+    print("Average classification_rate:", class_rate/k)
 
     # average accuracies
     return 0
@@ -249,15 +257,14 @@ def k_fold_cross_validation(k, x_data, y_data):
 #######################################         confusion matrix         #######################################
 
 def confusion_matrix(predicted, actual):
-    
+
     #predefine the confusion matrix
     cmat=np.zeros((6,6))
-    print(cmat.shape)
       
     #increment the matrix
     for i in range(len(predicted)):
-        cmat[actual[i]-1, predicted[i]-1]+=1  
-      
+        cmat[actual[i]-1, predicted[i]-1]+=1
+
     #return the confusion matrix
     return cmat 
 
@@ -270,8 +277,7 @@ def recall(conf_mnatrix):
     
     #compute the recall rate for each class
     for i in range(6):
-        
-        rate[i] = conf_mnatrix[i, i]*100/sum(conf_mnatrix[i, :])
+        rate[i] = conf_mnatrix[i, i]*100/(sum(conf_mnatrix[i, :])+1)
      
     #return the recall rate 
     #print(rate)       
@@ -287,8 +293,7 @@ def precision(conf_matrix):
     
     #compute the precision rate for each class
     for i in range(6):
-        
-        rate[i] = conf_matrix[i, i]*100/sum(conf_matrix[:, i])
+        rate[i] = conf_matrix[i, i]*100/(sum(conf_matrix[:, i])+1)
      
     #return the precision rate  
     #print(rate)      
@@ -307,8 +312,7 @@ def f1_measure(precision_rate, recall_rate):
         
         rate[i] = 2*precision_rate[i]*recall_rate[i]/(precision_rate[i]+recall_rate[i])
      
-    #return the Fa measure  
-    print(rate)      
+    #return the Fa measure    
     return rate   
     
 #######################################         classification rate        #######################################    
@@ -319,6 +323,5 @@ def classification_rate(conf_matrix):
 
     rate = sum(conf_matrix.diagonal())/conf_matrix.sum()
      
-    #return the classification rate  
-    print('rate', rate)      
+    #return the classification rate
     return rate      

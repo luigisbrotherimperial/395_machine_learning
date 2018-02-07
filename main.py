@@ -76,7 +76,18 @@ def main():
 
     print("test accuracy for perfect decision tree (all emotions) = " + str(round(np.sum(prediction_all_emotions == y_clean)/len(y_clean), 2)*100) + str("%%"))
 
+
+    print(k_fold_cross_validation(10, x_clean, y_clean))
+
     #test confusion  matrix
     confusion_matrix(prediction_all_emotions, y_clean)
+
+    #USED TO TEST   
+    cmat = confusion_matrix(prediction_all_emotions, y_clean)
+    print(cmat)
+    recall_rate = recall(cmat)
+    precision_rate = precision(cmat)
+    f1_measure(precision_rate, recall_rate)
+    classification_rate(cmat)
 
 main() 

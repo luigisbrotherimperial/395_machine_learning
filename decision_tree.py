@@ -187,7 +187,7 @@ def testTrees2(T,x_data):
 
 #######################################         k-folds cross validation         #######################################
 
-def k_fold_cross_validation(k, x_data, y_data):
+def k_fold_cross_validation_OLD(k, x_data, y_data):
     equal_parts = int(np.floor(x_data.shape[0]/k))
     trees = []
     for j in range(1,7):
@@ -195,14 +195,55 @@ def k_fold_cross_validation(k, x_data, y_data):
         for i in range(k):
             # x_test  = x_data[i*equal_parts:equal_parts*(i+1)]
             # y_test  = bin_emotion[i*equal_parts:equal_parts*(i+1)]
-            x_train = np.append     (x_data[0:i*equal_parts],      x_data[(i+1)*equal_parts:], axis = 0)
+            x_train = np.append(x_data[0:i*equal_parts],      x_data[(i+1)*equal_parts:], axis = 0)
             y_train = np.append(bin_emotion[0:i*equal_parts], bin_emotion[(i+1)*equal_parts:])
             trees.append(decision_tree_learning(x_train, range(45), y_train))
     return trees
 
+def k_fold_cross_validation(k, x_data, y_data):
+    conf_mat = np.zeros((6,6))
+    precision = 0
+    recall = 0
+
+    fold_size = int(np.floor(x_data.shape[0]/k))
+
+    # for each part
+    for i in range(k):
+        # break dataset into k equal(ish) parts
+        x_train = np.append(x_data[0:i*fold_size], x_data[(i+1)*fold_size:], axis = 0)
+        y_train = np.append(y_data[0:i*fold_size], y_data[(i+1)*fold_size:], axis = 0)
+
+        # train tree for each emotion on k-1 parts
+        tree_list = []
+        for emotion in range(1, 7):
+            bin_emotion = subset(x_train, y_train, emotion)
+            dec_tree = decision_tree_learning(x_train, range(45), bin_emotion)
+            tree_list.append(dec_tree)
+
+        # predict on kth part
+        prediction_all_emotions = []
+        for j in range(x_train.shape[0]):
+            prediction_all_emotions.append(testTrees(tree_list, x_train[i]))
+        prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_train.shape[0], 1])
+
+        # get accuracy
+        ## TODO: calculate evaluation metrics here and sum
+        conf_mat += np.zeros((6,6))
+        precision += 0.1234
+        recall += 0.1234
+
+    print("Average confusion matrix:", conf_mat/k)
+    print("Average precision:", precision/k)
+    print("Average recall:", recall/k)
+
+    # average accuracies
+    return 0
+
+
 # this would return 60 trained trees. the first 10 trees are trained on anger, the second 10 trees on disgust, ...
 # k_trees = k_fold_cross_validation(10, x_clean, y_clean)
 # TODO: use either for confusion matrix or average values (you can build it directly into k_fold_cross_validation)
+
 
 
 #######################################         confusion matrix         #######################################
@@ -281,11 +322,3 @@ def classification_rate(conf_matrix):
     #return the classification rate  
     print('rate', rate)      
     return rate      
-     
-#USED TO TEST   
-cmat = confusion_matrix(prediction_all_emotions, y_clean)
-print(cmat)
-recall_rate = recall(cmat)
-precision_rate = precision(cmat)
-f1_measure(precision_rate, recall_rate)
-classification_rate(cmat)

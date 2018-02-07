@@ -7,6 +7,7 @@
 
 import numpy as np
 import scipy.io
+from random import randint
 
 clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
 noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
@@ -51,6 +52,9 @@ class Tree:
 
     def setLabel(self, value):
         self.label = value
+
+    def setKids(self, value):
+        self.kids = value
 
     def insertRight(self, newNode):
         if self.right == None:
@@ -166,13 +170,17 @@ def decision_tree_learning(examples, attributes, binary_target):
         if len(examples_0) == 0:
             tree.setLabel(0)
         else:
-            tree.insertLeft(decision_tree_learning(examples_0, attributes, binary_target0))
+            # TODO: count Kids!
+            leftTree = decision_tree_learning(examples_0, attributes, binary_target0)
+            tree.setKids([leftTree.getKids()[0]+1, leftTree.getKids()[1]])
+            tree.insertLeft(leftTree)
 
         if len(examples_1) == 0:
             tree.setLabel(1)
         else:
-            tree.insertRight(decision_tree_learning(examples_1, attributes, binary_target1))
-
+            rightTree = decision_tree_learning(examples_1, attributes, binary_target1)
+            tree.setKids([rightTree.getKids()[0], rightTree.getKids()[1]+1])
+            tree.insertRight(rightTree)
     return tree
 
 
@@ -202,7 +210,7 @@ def prediction(decision_tree, x_data):
     return decision_tree.getLabel()
 
 
-#######################################         Test1         #######################################
+#######################################         Test general setup         #######################################
 
 # for perfectly trained trees:
 x_test = x_clean[500:1000]
@@ -227,3 +235,26 @@ print("test accuracy for perfect decision tree (fear)      = " + str(test_accura
 print("test accuracy for perfect decision tree (happiness) = " + str(test_accuracy(x_test, y_test_happiness, dec_tree_happiness)*100)+str("%%"))
 print("test accuracy for perfect decision tree (sadness)   = " + str(test_accuracy(x_test, y_test_sadness, dec_tree_sadness)*100)+str("%%"))
 print("test accuracy for perfect decision tree (surprise)  = " + str(test_accuracy(x_test, y_test_surprise, dec_tree_surprise)*100)+str("%%"))
+
+
+#######################################         Test all emotions         #######################################
+
+trees = [dec_tree_anger, dec_tree_disgust, dec_tree_fear, dec_tree_happiness, dec_tree_sadness, dec_tree_surprise]
+
+def testTrees(T,x_data):
+    for i in range(6):
+        if prediction(T[i], x_data)!=0:
+            return i+1
+    return randint(1,6)
+
+# TODO: 2nd implementation of testTrees
+
+prediction_all_emotions = []
+for i in range(x_clean.shape[0]):
+    prediction_all_emotions.append(testTrees(trees, x_clean[i]))
+prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_clean.shape[0], 1])
+print("test accuracy for perfect decision tree (all emotions) = " + str(round(np.sum(prediction_all_emotions == y_clean)/len(y_clean), 2)*100) + str("%%"))
+
+
+#######################################         k-folds cross validation         #######################################
+

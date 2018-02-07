@@ -298,8 +298,44 @@ def confusion_matrix(predicted, actual):
         cmat[actual[i]-1, predicted[i]-1]+=1  
       
     #return the confusion matrix
-    print(cmat)
     return cmat 
+
+#######################################         recall        #######################################
+
+def recall(conf_mnatrix):
     
-#test confusion  matrix
-confusion_matrix(prediction_all_emotions, y_clean)
+    #initialize the recall rate array
+    rate = np.zeros((6))
+    
+    #compute the recall rate for each class
+    for i in range(6):
+        
+        rate[i] = conf_mnatrix[i, i]*100/sum(conf_mnatrix[i, :])
+     
+    #return the recall rate 
+    #print(rate)       
+    return rate
+    
+    
+#######################################         precision        #######################################
+
+def precision(conf_mnatrix):
+     
+    #initialize the precision rate array
+    rate = np.zeros((6))
+    
+    #compute the precision rate for each class
+    for i in range(6):
+        
+        rate[i] = conf_mnatrix[i, i]*100/sum(conf_mnatrix[:, i])
+     
+    #return the precision rate  
+    #print(rate)      
+    return rate   
+ 
+ 
+#USED TO TEST       
+#cmat = confusion_matrix(prediction_all_emotions, y_clean)
+#print(cmat)
+#recall(cmat)
+#precision(cmat)

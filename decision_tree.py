@@ -7,7 +7,7 @@
 
 import numpy as np
 import scipy.io
-from random import randint
+from random import randint, choice
 
 clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
 noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
@@ -238,12 +238,22 @@ print("test accuracy for perfect decision tree (surprise)  = " + str(test_accura
 trees = [dec_tree_anger, dec_tree_disgust, dec_tree_fear, dec_tree_happiness, dec_tree_sadness, dec_tree_surprise]
 
 def testTrees(T,x_data):
+    # Choose first emotion found
     for i in range(6):
-        if prediction(T[i], x_data)!=0:
+        if prediction(T[i], x_data) == 1:
             return i+1
-    return randint(1,6)
+    return randint(1,7)
 
-# TODO: 2nd implementation of testTrees
+def testTrees2(T,x_data):
+    # Choose randomly from predicted emotions
+    predicted_emotions = []
+    for i in range(6):
+        if prediction(T[i], x_data) == 1:
+            predicted_emotions.append(i+1)
+    if len(predicted_emotions) == 0:
+        return randint(1, 7)
+    else:
+        return choice(predicted_emotions)
 
 prediction_all_emotions = []
 for i in range(x_clean.shape[0]):

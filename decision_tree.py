@@ -26,20 +26,15 @@ y_noisy = noisy_data.get("y")
 
 class Tree:
     def __init__(self, op):
-        self.left = None
-        self.right = None
         self.op = op  # label of the attribute that is being tested
         self.kids = [0, 0]  # counting the left and right children of the current node
         self.label = None  # label for leaf nodes
 
     def getLeftChild(self):
-        return self.left
+        return self.kids[0]
 
     def getRightChild(self):
-        return self.right
-
-    def getKids(self):
-        return self.kids
+        return self.kids[1]
 
     def getOp(self):
         return self.op
@@ -53,33 +48,6 @@ class Tree:
     def setLabel(self, value):
         self.label = value
 
-    def setKids(self, value):
-        self.kids = value
-
-    # TODO change right/left
-    def insertRight(self, newNode):
-        if self.right == None:
-            self.right = newNode
-            self.kids[1] = self.kids[1] + 1
-        else:
-            
-            #ASK
-            print('weird')
-            newNode.right = self.right
-            self.right = newNode
-            self.kids[1] = self.kids[1] + 1
-
-    def insertLeft(self, newNode):
-        if self.left == None:
-            self.left = newNode
-            self.kids[0] = self.kids[0] + 1
-        else:
-            
-            #ASK
-            print('weird')
-            newNode.left = self.left
-            self.left = newNode
-            self.kids[0] = self.kids[0] + 1
 
 
 def printTree(tree):
@@ -204,12 +172,10 @@ def decision_tree_learning(examples, attributes, binary_target):
         else:
             # TODO: count Kids!
             leftTree = decision_tree_learning(examples_0, attributes, binary_target0)
-            tree.setKids([leftTree.getKids()[0]+1, leftTree.getKids()[1]])
-            tree.insertLeft(leftTree)
+            tree.kids[0]=leftTree
 
             rightTree = decision_tree_learning(examples_1, attributes, binary_target1)
-            tree.setKids([rightTree.getKids()[0], rightTree.getKids()[1]+1])
-            tree.insertRight(rightTree)
+            tree.kids[1]=rightTree
             
     return tree
 

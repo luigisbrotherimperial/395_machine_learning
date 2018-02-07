@@ -220,8 +220,6 @@ def confusion_matrix(predicted, actual):
     #return the confusion matrix
     return cmat 
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 #######################################         recall        #######################################
 
 def recall(conf_mnatrix):
@@ -261,7 +259,3 @@ def precision(conf_mnatrix):
 #print(cmat)
 #recall(cmat)
 #precision(cmat)
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes

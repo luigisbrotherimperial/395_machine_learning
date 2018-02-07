@@ -258,3 +258,20 @@ print("test accuracy for perfect decision tree (all emotions) = " + str(round(np
 
 #######################################         k-folds cross validation         #######################################
 
+def k_fold_cross_validation(k, x_data, y_data):
+    equal_parts = int(np.floor(x_data.shape[0]/k))
+    trees = []
+    for j in range(1,7):
+        bin_emotion = subset(x_data, y_data, j)
+        for i in range(k):
+            # x_test  = x_data[i*equal_parts:equal_parts*(i+1)]
+            # y_test  = bin_emotion[i*equal_parts:equal_parts*(i+1)]
+            x_train = np.append     (x_data[0:i*equal_parts],      x_data[(i+1)*equal_parts:], axis = 0)
+            y_train = np.append(bin_emotion[0:i*equal_parts], bin_emotion[(i+1)*equal_parts:])
+            trees.append(decision_tree_learning(x_train, range(45), y_train))
+    return trees
+
+# this would return 60 trained trees. the first 10 trees are trained on anger, the second 10 trees on disgust, ...
+# k_trees = k_fold_cross_validation(10, x_clean, y_clean)
+# TODO: use either for confusion matrix or average values (you can build it directly into k_fold_cross_validation)
+

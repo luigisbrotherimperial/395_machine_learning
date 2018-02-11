@@ -1,5 +1,7 @@
 import numpy as np
 from random import randint, choice
+import pydot
+
 #######################################         Decision Tree         #######################################
 class Tree:
     def __init__(self, op):
@@ -116,14 +118,14 @@ def decision_tree_learning(examples, attributes, binary_target):
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
         op = attributes[best_attribute]
         tree = Tree(op)
-        attributes = np.delete(attributes, best_attribute)
+        #attributes = np.delete(attributes, best_attribute)
 
         examples_0 = examples[examples[:, best_attribute] == 0]
-        examples_0 = np.delete(examples_0, best_attribute, 1)
+        #examples_0 = np.delete(examples_0, best_attribute, 1)
         binary_target0 = binary_target[examples[:, best_attribute] == 0]
 
         examples_1 = examples[examples[:, best_attribute] == 1]
-        examples_1 = np.delete(examples_1, best_attribute, 1)
+        #examples_1 = np.delete(examples_1, best_attribute, 1)
         binary_target1 = binary_target[examples[:, best_attribute] == 1]
 
 
@@ -325,3 +327,41 @@ def classification_rate(conf_matrix):
      
     #return the classification rate
     return rate      
+
+#######################################         visualisation        #######################################
+
+def draw_tree(root, filename):
+    graph = pydot.Dot(graph_type='graph')
+    draw_children(root, graph, 'Path 0')
+    graph.write_png('results/{}.png'.format(filename))
+
+def draw_children(parent, graph, route):
+    if parent.kids == [0, 0]:
+        # this is a leaf node
+        return
+    else:
+        parent_text = route + '\nAttribute ' + str(parent.getOp())
+
+        for i in [0, 1]:
+            child = parent.kids[i]
+            side = ['L', 'R'][i]
+            if child.getLabel() == None:
+                # child is not a leaf node
+                child_text = route + side + '\nAttribute ' + str(child.getOp())
+                child_node = pydot.Node(child_text) #, shape='box')
+            else:
+                # child is leaf node
+                if child.getLabel():
+                    color = "#66ff66" # green
+                else:
+                    color = "#ff6666" # red
+                child_node = pydot.Node(route + side + '\nPrediction ' + str(child.getLabel()),
+                                        shape='box', style="filled", fillcolor=color)
+
+            graph.add_node(child_node)
+            edge = pydot.Edge(parent_text, child_node, label=str(i))
+            graph.add_edge(edge)
+
+            draw_children(child, graph, route + side)
+
+    return

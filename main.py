@@ -88,3 +88,12 @@ recall_rate = recall(cmat)
 precision_rate = precision(cmat)
 f1_measure(precision_rate, recall_rate)
 classification_rate(cmat)
+
+#######################################         Visualisation         #######################################
+
+draw_tree(dec_tree_anger, 'dec_tree_anger')
+draw_tree(dec_tree_disgust, 'dec_tree_disgust')
+draw_tree(dec_tree_fear, 'dec_tree_fear')
+draw_tree(dec_tree_happiness, 'dec_tree_happiness')
+draw_tree(dec_tree_sadness, 'dec_tree_sadness')
+draw_tree(dec_tree_surprise, 'dec_tree_surprise')

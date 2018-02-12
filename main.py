@@ -99,14 +99,14 @@ draw_tree(dec_tree_sadness, 'dec_tree_sadness')
 draw_tree(dec_tree_surprise, 'dec_tree_surprise')
 
 #######################################         save trees         #######################################
-save_tree(dec_tree_anger, 'dec_tree_anger.p')
-save_tree(dec_tree_disgust, 'dec_tree_disgust.p')
-save_tree(dec_tree_fear, 'dec_tree_fear.p')
-save_tree(dec_tree_happiness, 'dec_tree_happiness.p')
-save_tree(dec_tree_sadness, 'dec_tree_sadness.p')
-save_tree(dec_tree_surprise, 'dec_tree_surprise.p')
+save_tree(dec_tree_anger, './results/dec_tree_anger.p')
+save_tree(dec_tree_disgust, './results/dec_tree_disgust.p')
+save_tree(dec_tree_fear, './results/dec_tree_fear.p')
+save_tree(dec_tree_happiness, './results/dec_tree_happiness.p')
+save_tree(dec_tree_sadness, './results/dec_tree_sadness.p')
+save_tree(dec_tree_surprise, './results/dec_tree_surprise.p')
 
 #######################################         load trees         #######################################
-dec_tree_anger = load_tree('dec_tree_anger.p')
+dec_tree_anger = load_tree('./results/dec_tree_anger.p')
 print("")
 print("test accuracy for pickled decision tree (anger)     = " + str(test_accuracy(x_test, y_test_anger, dec_tree_anger)*100)+str("%%"))

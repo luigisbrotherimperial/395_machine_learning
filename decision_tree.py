@@ -1,6 +1,7 @@
 import numpy as np
 from random import randint, choice
 import pydot
+import pickle
 
 #######################################         Decision Tree         #######################################
 class Tree:
@@ -365,3 +366,13 @@ def draw_children(parent, graph, route):
             draw_children(child, graph, route + side)
 
     return
+
+#######################################         pickle trees        #######################################
+def save_tree(tree, fileName):
+    fileObject = open(fileName, 'wb')
+    pickle.dump(tree, fileObject)
+    fileObject.close()
+
+def load_tree(fileName):
+    fileObject = open(fileName, 'rb')
+    return pickle.load(fileObject)

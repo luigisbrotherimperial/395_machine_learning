@@ -5,7 +5,7 @@ try:
     pydot_installed = True
 except:
     pydot_installed = False
-    print('To see visualisations install pydot (see report).')
+    print('To see visualisations install pydot (see report).\n')
 
 import pickle
 
@@ -155,7 +155,7 @@ def prediction(decision_tree, x_data):
     return decision_tree.getLabel()
 
 def probability(decision_tree, x_data):
-    prob = 1
+    prob = decision_tree.prob
     while decision_tree.getLabel() == None:
         op = decision_tree.getOp()
         prob = (prob + decision_tree.prob)/2
@@ -344,6 +344,21 @@ def classification_rate(conf_matrix):
 
     # return the classification rate
     return rate
+
+
+#######################################         all evaluation        #######################################
+def evaluate_predictions(predictions, actual):
+    conf_mat = confusion_matrix(predictions, actual)
+    precision_rate = precision(conf_mat)
+    recall_rate = recall(conf_mat)
+    f1_measure_rate = f1_measure(precision_rate, recall_rate)
+    class_rate = classification_rate(conf_mat)
+
+    print("Average confusion matrix:\n", conf_mat)
+    print("Average precision:\n", np.round(precision_rate, 2))
+    print("Average recall:\n", np.round(recall_rate, 2))
+    print("Average f1_measure:\n", np.round(f1_measure_rate, 2))
+    print("Average classification_rate: ", np.round(class_rate, 2))
 
 
 #######################################         visualisation        #######################################

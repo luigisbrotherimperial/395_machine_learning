@@ -177,11 +177,19 @@ def predict_point2(T, x_data):
     else:
         return choice(predicted_emotions)
 
-def testTrees(T, x2, predict_func=predict_point):
-    # return predictions for all data points
+def testTrees(T, x2):
+    # return predictions for all data points using predict_point
     predictions = []
     for j in range(x2.shape[0]):
-        predictions.append(predict_func(T, x2[j]))
+        predictions.append(predict_point(T, x2[j]))
+    predictions = np.reshape(np.array(predictions), [x2.shape[0], 1])
+    return predictions
+
+def testTrees2(T, x2):
+    # return predictions for all data points using predict_point2
+    predictions = []
+    for j in range(x2.shape[0]):
+        predictions.append(predict_point2(T, x2[j]))
     predictions = np.reshape(np.array(predictions), [x2.shape[0], 1])
     return predictions
 
@@ -212,13 +220,7 @@ def k_fold_cross_validation(k, x_data, y_data):
             dec_tree = decision_tree_learning(x_train, range(45), bin_emotion)
             tree_list.append(dec_tree)
 
-        # predict on kth part
-        # pred_all_emotions = []
-        # for j in range(x_test.shape[0]):
-        #     pred_all_emotions.append(predict_point(tree_list, x_test[j]))
-        # pred_all_emotions = np.reshape(np.array(pred_all_emotions), [x_test.shape[0], 1])
-
-        pred_all_emotions = testTrees(tree_list, x_test, predict_func=predict_point)
+        pred_all_emotions = testTrees(tree_list, x_test)
 
         # get accuracy
         conf_mat += confusion_matrix(pred_all_emotions, y_test)

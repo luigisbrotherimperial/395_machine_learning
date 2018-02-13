@@ -290,7 +290,10 @@ def recall(conf_mnatrix):
 
     # compute the recall rate for each class
     for i in range(6):
-        rate[i] = conf_mnatrix[i, i] * 100 / (sum(conf_mnatrix[i, :]) + 1)
+        if sum(conf_mnatrix[i, :]) == 0:
+            rate[i] = conf_mnatrix[i, i] * 100
+        else:
+            rate[i] = conf_mnatrix[i, i] * 100 / (sum(conf_mnatrix[i, :]))
 
     # return the recall rate
     return rate
@@ -303,7 +306,10 @@ def precision(conf_matrix):
 
     # compute the precision rate for each class
     for i in range(6):
-        rate[i] = conf_matrix[i, i] * 100 / (sum(conf_matrix[:, i]) + 1)
+        if sum(conf_matrix[:, i]) == 0:
+            rate[i] = conf_matrix[i, i] * 100
+        else:
+            rate[i] = conf_matrix[i, i] * 100 / (sum(conf_matrix[:, i]))
 
     # return the precision rate
     return rate
@@ -316,7 +322,7 @@ def f1_measure(precision_rate, recall_rate):
 
     # compute the Fa measure for each class
     for i in range(6):
-        rate[i] = 2 * precision_rate[i] * recall_rate[i] / (precision_rate[i] + recall_rate[i])
+        rate[i] = 2 * ((precision_rate[i]/100 * recall_rate[i]/100) / (precision_rate[i]/100 + recall_rate[i]/100))*100
 
     # return the Fa measure
     return rate

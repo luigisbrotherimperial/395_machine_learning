@@ -230,11 +230,11 @@ def testTrees3(T, x2):
 
 #######################################         k-folds cross validation         #######################################
 def k_fold_cross_validation(k, x_data, y_data):
-    conf_mat = np.zeros((6, 6))
-    precision_rate = np.zeros((6))
-    recall_rate = np.zeros((6))
-    f1_measure_rate = np.zeros((6))
-    class_rate = 0
+    conf_mat_sum = np.zeros((6, 6))
+    precision_rate_sum = np.zeros((6))
+    recall_rate_sum = np.zeros((6))
+    f1_measure_rate_sum = np.zeros((6))
+    class_rate_sum = 0
 
     fold_size = int(np.floor(x_data.shape[0] / k))
 
@@ -256,18 +256,23 @@ def k_fold_cross_validation(k, x_data, y_data):
 
         pred_all_emotions = testTrees3(tree_list, x_test)
 
-        # get accuracy
-        conf_mat += confusion_matrix(pred_all_emotions, y_test)
-        precision_rate += precision(conf_mat)
-        recall_rate += recall(conf_mat)
-        f1_measure_rate += f1_measure(precision_rate, recall_rate)
-        class_rate += classification_rate(conf_mat)
+        # calculate evaluation metrics
+        conf_mat = confusion_matrix(pred_all_emotions, y_test)
+        precision_rate = precision(conf_mat)
+        recall_rate = recall(conf_mat)
 
-    print("Average confusion matrix:\n", conf_mat / k)
-    print("Average precision: ", np.round(precision_rate / k, 2))
-    print("Average recall:    ", np.round(recall_rate / k, 2))
-    print("Average f1_measure:", np.round(f1_measure_rate / k, 2))
-    print("Average classification_rate: ", np.round(class_rate / k, 2))
+        # add to sums (for average later)
+        conf_mat_sum += conf_mat
+        precision_rate_sum += precision_rate
+        recall_rate_sum += recall_rate
+        f1_measure_rate_sum += f1_measure(precision_rate, recall_rate)
+        class_rate_sum += classification_rate(conf_mat)
+
+    print("Average confusion matrix:\n", conf_mat_sum / k)
+    print("Average precision: ", np.round(precision_rate_sum / k, 2))
+    print("Average recall:    ", np.round(recall_rate_sum / k, 2))
+    print("Average f1_measure:", np.round(f1_measure_rate_sum / k, 2))
+    print("Average classification_rate: ", np.round(class_rate_sum / k, 2))
 
 
 #######################################             confusion matrix            #######################################
@@ -322,7 +327,10 @@ def f1_measure(precision_rate, recall_rate):
 
     # compute the Fa measure for each class
     for i in range(6):
-        rate[i] = 2 * ((precision_rate[i]/100 * recall_rate[i]/100) / (precision_rate[i]/100 + recall_rate[i]/100))*100
+        if precision_rate[i] == 0 or recall_rate[i] == 0:
+            rate[i] = 0
+        else:
+            rate[i] = 2 * ((precision_rate[i]/100 * recall_rate[i]/100) / (precision_rate[i]/100 + recall_rate[i]/100))*100
 
     # return the Fa measure
     return rate

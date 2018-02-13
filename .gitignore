@@ -2,3 +2,7 @@
 
 # figures
 *.png
+
+# weird Anya files
+.DS_Store
+*.xml

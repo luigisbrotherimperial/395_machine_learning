@@ -1,6 +1,12 @@
 import numpy as np
 from random import randint, choice
-import pydot
+try:
+    import pydot
+    pydot_installed = True
+except:
+    pydot_installed = False
+    print('To see visualisations install pydot (see report).')
+
 import pickle
 
 #######################################              Decision Tree              #######################################

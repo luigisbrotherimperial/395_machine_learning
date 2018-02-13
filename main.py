@@ -132,12 +132,15 @@ k_fold_cross_validation(10, x_noisy, y_noisy)
 
 
 #######################################         Visualisation         #######################################
-draw_tree(dec_tree_anger, 'dec_tree_anger')
-draw_tree(dec_tree_disgust, 'dec_tree_disgust')
-draw_tree(dec_tree_fear, 'dec_tree_fear')
-draw_tree(dec_tree_happiness, 'dec_tree_happiness')
-draw_tree(dec_tree_sadness, 'dec_tree_sadness')
-draw_tree(dec_tree_surprise, 'dec_tree_surprise')
+if pydot_installed:
+    draw_tree(dec_tree_anger, 'dec_tree_anger')
+    draw_tree(dec_tree_disgust, 'dec_tree_disgust')
+    draw_tree(dec_tree_fear, 'dec_tree_fear')
+    draw_tree(dec_tree_happiness, 'dec_tree_happiness')
+    draw_tree(dec_tree_sadness, 'dec_tree_sadness')
+    draw_tree(dec_tree_surprise, 'dec_tree_surprise')
+else:
+    print('No visualisation because pydot not installed (see report).')
 
 
 #######################################         save trees         #######################################

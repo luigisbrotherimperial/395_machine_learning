@@ -3,11 +3,11 @@ from random import randint, choice
 import pydot
 import pickle
 
-#######################################         Decision Tree         #######################################
+#######################################              Decision Tree              #######################################
 class Tree:
     def __init__(self, op):
         self.op = op  # label of the attribute that is being tested
-        self.kids = [0, 0]  # counting the left and right children of the current node
+        self.kids = [0, 0]  # left and right children of the current node
         self.label = None  # label for leaf nodes
 
     def getLeftChild(self):
@@ -29,19 +29,12 @@ class Tree:
         self.label = value
 
 
-
-def printTree(tree):
-    if tree != None:
-        print(tree.getOp())
-        print()
-        printTree(tree.getLeftChild())
-        printTree(tree.getRightChild())
-
 def subset(x_data, y_data, target):
     # x_data(array[N,A]): the data for which a subset should be created with
     #                     N examples and A attributes
     # y_data(array[N]):   the labeled data for all N examples
     # target(range(1,7)): the target emotion
+
     bool_array = y_data == target
     binary_target = np.zeros(x_data.shape[0])
     binary_target[bool_array[:, 0]] = 1
@@ -52,16 +45,14 @@ def entropy(p, n):
     if (p + n) == 0:
         return 0
     elif p == 0:
-        return - n / (p + n) * np.log2(n / (p + n))
+        return -n / (p + n) * np.log2(n / (p + n))
     elif n == 0:
         return -p / (p + n) * np.log2(p / (p + n))
     else:
         return -p / (p + n) * np.log2(p / (p + n)) - n / (p + n) * np.log2(n / (p + n))
-        
 
-#CHANGED! new function added         
+
 def majority_value(binary_target):
-    
     return int(round(np.sum(binary_target) / len(binary_target)))
 
 
@@ -97,61 +88,52 @@ def decision_tree_learning(examples, attributes, binary_target):
     #                             A number of attributes (Action Units)
     # attributes (array[1,A])   : a vector with all available attributes A
     # binary_target (array[N,1]):
+
     if np.all(binary_target == binary_target[0], axis=0):
-        
-        #CHANGED - leaf node empty op
         tree = Tree('')
         tree.setLabel(int(binary_target[0]))
         return tree
+
     elif len(attributes) == 0:
-        
-        #CHANGED
         mode = majority_value(binary_target)
-        
-        #CHANGED - leaf node empty op
+
         tree = Tree('')
         tree.setLabel(mode)
-        
+
         return tree
-        
-        
+
+
     else:
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
         op = attributes[best_attribute]
         tree = Tree(op)
-        #attributes = np.delete(attributes, best_attribute)
 
         examples_0 = examples[examples[:, best_attribute] == 0]
-        #examples_0 = np.delete(examples_0, best_attribute, 1)
+
         binary_target0 = binary_target[examples[:, best_attribute] == 0]
 
         examples_1 = examples[examples[:, best_attribute] == 1]
-        #examples_1 = np.delete(examples_1, best_attribute, 1)
+
         binary_target1 = binary_target[examples[:, best_attribute] == 1]
 
-
-        #CHANGED! 
         if (len(examples_0) == 0) or (len(examples_1) == 0):
-            
-            #CHANGED! 
+
             mode = majority_value(binary_target)
-            
-            #CHANGED - leaf node empty op
+
             tree = Tree('')
             tree.setLabel(mode)
-            
+
         else:
-            # TODO: count Kids!
             leftTree = decision_tree_learning(examples_0, attributes, binary_target0)
-            tree.kids[0]=leftTree
+            tree.kids[0] = leftTree
 
             rightTree = decision_tree_learning(examples_1, attributes, binary_target1)
-            tree.kids[1]=rightTree
-            
+            tree.kids[1] = rightTree
+
     return tree
 
-#######################################         Prediction         #######################################
 
+#######################################         Prediction         #######################################
 def prediction(decision_tree, x_data):
     while decision_tree.getLabel() == None:
         op = decision_tree.getOp()
@@ -170,56 +152,44 @@ def test_accuracy(x_test, y_test, decision_tree):
     return np.sum(predictions == y_test) / len(y_test)
 
 
-def testTrees(T,x_data):
+def testTrees(T, x_data):
     # Choose first emotion found
     for i in range(6):
         if prediction(T[i], x_data) == 1:
-            return i+1
-    return randint(1,6)
+            return i + 1
+    return randint(1, 6)
 
-def testTrees2(T,x_data):
+
+def testTrees2(T, x_data):
     # Choose randomly from predicted emotions
     predicted_emotions = []
     for i in range(6):
         if prediction(T[i], x_data) == 1:
-            predicted_emotions.append(i+1)
+            predicted_emotions.append(i + 1)
     if len(predicted_emotions) == 0:
         return randint(1, 6)
     else:
         return choice(predicted_emotions)
 
+
 #######################################         k-folds cross validation         #######################################
-
-def k_fold_cross_validation_OLD(k, x_data, y_data):
-    equal_parts = int(np.floor(x_data.shape[0]/k))
-    trees = []
-    for j in range(1,7):
-        bin_emotion = subset(x_data, y_data, j)
-        for i in range(k):
-            # x_test  = x_data[i*equal_parts:equal_parts*(i+1)]
-            # y_test  = bin_emotion[i*equal_parts:equal_parts*(i+1)]
-            x_train = np.append(x_data[0:i*equal_parts],      x_data[(i+1)*equal_parts:], axis = 0)
-            y_train = np.append(bin_emotion[0:i*equal_parts], bin_emotion[(i+1)*equal_parts:])
-            trees.append(decision_tree_learning(x_train, range(45), y_train))
-    return trees
-
 def k_fold_cross_validation(k, x_data, y_data):
-    conf_mat = np.zeros((6,6))
+    conf_mat = np.zeros((6, 6))
     precision_rate = np.zeros((6))
     recall_rate = np.zeros((6))
     f1_measure_rate = np.zeros((6))
     class_rate = 0
 
-    fold_size = int(np.floor(x_data.shape[0]/k))
+    fold_size = int(np.floor(x_data.shape[0] / k))
 
     # for each part
     for i in range(k):
-        # break dataset into k equal(ish) parts
-        x_train = np.append(x_data[0:i*fold_size], x_data[(i+1)*fold_size:], axis = 0)
-        y_train = np.append(y_data[0:i*fold_size], y_data[(i+1)*fold_size:], axis = 0)
+        # break data set into k equal(ish) parts
+        x_train = np.append(x_data[0:i * fold_size], x_data[(i + 1) * fold_size:], axis=0)
+        y_train = np.append(y_data[0:i * fold_size], y_data[(i + 1) * fold_size:], axis=0)
 
-        x_test = x_data[i*fold_size:(i+1)*fold_size, :]
-        y_test = y_data[i*fold_size:(i+1)*fold_size]
+        x_test = x_data[i * fold_size:(i + 1) * fold_size, :]
+        y_test = y_data[i * fold_size:(i + 1) * fold_size]
 
         # train tree for each emotion on k-1 parts
         tree_list = []
@@ -241,100 +211,81 @@ def k_fold_cross_validation(k, x_data, y_data):
         f1_measure_rate += f1_measure(precision_rate, recall_rate)
         class_rate += classification_rate(conf_mat)
 
-    print("Average confusion matrix:\n", conf_mat/k)
-    print("Average precision:", precision_rate/k)
-    print("Average recall:", recall_rate/k)
-    print("Average f1_measure:", f1_measure_rate/k)
-    print("Average classification_rate:", class_rate/k)
-
-    # average accuracies
-    return 0
+    print("Average confusion matrix:\n", conf_mat / k)
+    print("Average precision: ", np.round(precision_rate / k, 2))
+    print("Average recall:    ", np.round(recall_rate / k, 2))
+    print("Average f1_measure:", np.round(f1_measure_rate / k, 2))
+    print("Average classification_rate: ", np.round(class_rate / k, 2))
 
 
-# this would return 60 trained trees. the first 10 trees are trained on anger, the second 10 trees on disgust, ...
-# k_trees = k_fold_cross_validation(10, x_clean, y_clean)
-# TODO: use either for confusion matrix or average values (you can build it directly into k_fold_cross_validation)
-
-
-
-#######################################         confusion matrix         #######################################
-
+#######################################             confusion matrix            #######################################
 def confusion_matrix(predicted, actual):
+    # predefine the confusion matrix
+    cmat = np.zeros((6, 6))
 
-    #predefine the confusion matrix
-    cmat=np.zeros((6,6))
-      
-    #increment the matrix
+    # increment the matrix
     for i in range(len(predicted)):
-        cmat[actual[i]-1, predicted[i]-1]+=1
+        cmat[actual[i] - 1, predicted[i] - 1] += 1
 
-    #return the confusion matrix
-    return cmat 
+    # return the confusion matrix
+    return cmat
+
 
 #######################################         recall        #######################################
-
 def recall(conf_mnatrix):
-    
-    #initialize the recall rate array
+    # initialize the recall rate array
     rate = np.zeros((6))
-    
-    #compute the recall rate for each class
+
+    # compute the recall rate for each class
     for i in range(6):
-        rate[i] = conf_mnatrix[i, i]*100/(sum(conf_mnatrix[i, :])+1)
-     
-    #return the recall rate 
-    #print(rate)       
+        rate[i] = conf_mnatrix[i, i] * 100 / (sum(conf_mnatrix[i, :]) + 1)
+
+    # return the recall rate
     return rate
-    
-    
+
+
 #######################################         precision        #######################################
-
 def precision(conf_matrix):
-     
-    #initialize the precision rate array
+    # initialize the precision rate array
     rate = np.zeros((6))
-    
-    #compute the precision rate for each class
+
+    # compute the precision rate for each class
     for i in range(6):
-        rate[i] = conf_matrix[i, i]*100/(sum(conf_matrix[:, i])+1)
-     
-    #return the precision rate  
-    #print(rate)      
-    return rate   
- 
- 
-#######################################         F1 mesure        ####################################### 
- 
+        rate[i] = conf_matrix[i, i] * 100 / (sum(conf_matrix[:, i]) + 1)
+
+    # return the precision rate
+    return rate
+
+
+#######################################         F1 mesure        #######################################
 def f1_measure(precision_rate, recall_rate):
-     
-    #initialize the Fa measure array
+    # initialize the Fa measure array
     rate = np.zeros((6))
-    
-    #compute the Fa measure for each class
+
+    # compute the Fa measure for each class
     for i in range(6):
-        
-        rate[i] = 2*precision_rate[i]*recall_rate[i]/(precision_rate[i]+recall_rate[i])
-     
-    #return the Fa measure    
-    return rate   
-    
-#######################################         classification rate        #######################################    
+        rate[i] = 2 * precision_rate[i] * recall_rate[i] / (precision_rate[i] + recall_rate[i])
 
+    # return the Fa measure
+    return rate
+
+
+#######################################         classification rate        #######################################
 def classification_rate(conf_matrix):
-    
-    #compute the classification rate 
+    # compute the classification rate
 
-    rate = sum(conf_matrix.diagonal())/conf_matrix.sum()
-     
-    #return the classification rate
-    return rate      
+    rate = sum(conf_matrix.diagonal()) / conf_matrix.sum()
+
+    # return the classification rate
+    return rate
+
 
 #######################################         visualisation        #######################################
-
 def draw_tree(root, filename):
     graph = pydot.Dot(graph_type='graph')
     draw_children(root, graph, 'Path 0')
     graph.write_png('results/{}.png'.format(filename))
+
 
 def draw_children(parent, graph, route):
     if parent.kids == [0, 0]:
@@ -349,13 +300,13 @@ def draw_children(parent, graph, route):
             if child.getLabel() == None:
                 # child is not a leaf node
                 child_text = route + side + '\nAttribute ' + str(child.getOp())
-                child_node = pydot.Node(child_text) #, shape='box')
+                child_node = pydot.Node(child_text)  # , shape='box')
             else:
                 # child is leaf node
                 if child.getLabel():
-                    color = "#66ff66" # green
+                    color = "#66ff66"  # green
                 else:
-                    color = "#ff6666" # red
+                    color = "#ff6666"  # red
                 child_node = pydot.Node(route + side + '\nPrediction ' + str(child.getLabel()),
                                         shape='box', style="filled", fillcolor=color)
 
@@ -367,12 +318,14 @@ def draw_children(parent, graph, route):
 
     return
 
-#######################################         pickle trees        #######################################
-def save_tree(tree, fileName):
-    fileObject = open(fileName, 'wb')
-    pickle.dump(tree, fileObject)
-    fileObject.close()
 
-def load_tree(fileName):
-    fileObject = open(fileName, 'rb')
-    return pickle.load(fileObject)
+#######################################         pickle trees        #######################################
+def save_tree(tree, filename):
+    fileobject = open(filename, 'wb')
+    pickle.dump(tree, fileobject)
+    fileobject.close()
+
+
+def load_tree(filename):
+    fileobject = open(filename, 'rb')
+    return pickle.load(fileobject)

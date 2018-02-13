@@ -2,69 +2,98 @@
 
 #### CW1 395 Machine Learning
 
-import numpy as np
 import scipy.io
 from decision_tree import *
 
-#######################################         Initialise         #######################################
-
+#######################################                  Initialise               ######################################
 clean_data = scipy.io.loadmat("./Data/cleandata_students.mat")
 noisy_data = scipy.io.loadmat("./Data/noisydata_students.mat")
 
 x_clean = clean_data.get("x")
-print("n_examples = " + str(x_clean.shape[0]) + " action_units = " + str(x_clean.shape[1]))
+print("clean dataset n_examples = " + str(x_clean.shape[0]) + " action_units = " + str(x_clean.shape[1]))
+x_noisy = noisy_data.get("x")
+print("noisy dataset n_examples = " + str(x_noisy.shape[0]) + " action_units = " + str(x_noisy.shape[1]))
 
 y_clean = clean_data.get("y")
-emotions = {0: "anger", 1: "disgust", 2: "fear", 3: "happiness", 4: "sadness", 5: "surprise"}
-
-x_noisy = noisy_data.get("x")
 y_noisy = noisy_data.get("y")
 
 
-#######################################         Define Emotions         #######################################
-print("\nDefine Emotions")
-bin_anger = subset(x_clean, y_clean, 1)
-bin_disgust = subset(x_clean, y_clean, 2)
-bin_fear = subset(x_clean, y_clean, 3)
+###################################     Define binary emotions for clean data set   ####################################
+print("\nDefine binary arrays for CLEAN data set ... ")
+bin_anger =     subset(x_clean, y_clean, 1)
+bin_disgust =   subset(x_clean, y_clean, 2)
+bin_fear =      subset(x_clean, y_clean, 3)
 bin_happiness = subset(x_clean, y_clean, 4)
-bin_sadness = subset(x_clean, y_clean, 5)
-bin_surprise = subset(x_clean, y_clean, 6)
+bin_sadness =   subset(x_clean, y_clean, 5)
+bin_surprise =  subset(x_clean, y_clean, 6)
 
-#######################################         Learning         #######################################
 
-print("\nLearning")
-dec_tree_anger     = decision_tree_learning(x_clean, range(45), bin_anger)
-dec_tree_disgust   = decision_tree_learning(x_clean, range(45), bin_disgust)
-dec_tree_fear      = decision_tree_learning(x_clean, range(45), bin_fear)
+##################################   Define binary emotions for noisy data set    ######################################
+print("\nDefine binary arrays for NOISY data set ... ")
+bin_anger_n =     subset(x_noisy, y_noisy, 1)
+bin_disgust_n =   subset(x_noisy, y_noisy, 2)
+bin_fear_n =      subset(x_noisy, y_noisy, 3)
+bin_happiness_n = subset(x_noisy, y_noisy, 4)
+bin_sadness_n =   subset(x_noisy, y_noisy, 5)
+bin_surprise_n =  subset(x_noisy, y_noisy, 6)
+
+
+#######################################         Learning on clean data set        ######################################
+print("\nLearning on CLEAN data set ...")
+dec_tree_anger =     decision_tree_learning(x_clean, range(45), bin_anger)
+dec_tree_disgust =   decision_tree_learning(x_clean, range(45), bin_disgust)
+dec_tree_fear =      decision_tree_learning(x_clean, range(45), bin_fear)
 dec_tree_happiness = decision_tree_learning(x_clean, range(45), bin_happiness)
-dec_tree_sadness   = decision_tree_learning(x_clean, range(45), bin_sadness)
-dec_tree_surprise   = decision_tree_learning(x_clean, range(45), bin_surprise)
-
-# TODO: Visualization of the trees:
-
-#######################################         Test general setup         #######################################
-
-print("\nTest general setup")
-# for perfectly trained trees:
-x_test = x_clean[500:1000]
-y_test_anger = bin_anger[500:1000]
-y_test_disgust = bin_disgust[500:1000]
-y_test_fear = bin_fear[500:1000]
-y_test_happiness = bin_happiness[500:1000]
-y_test_sadness = bin_sadness[500:1000]
-y_test_surprise = bin_surprise[500:1000]
-
-print("test accuracy for perfect decision tree (anger)     = " + str(test_accuracy(x_test, y_test_anger, dec_tree_anger)*100)+str("%%"))
-print("test accuracy for perfect decision tree (disgust)   = " + str(test_accuracy(x_test, y_test_disgust, dec_tree_disgust)*100)+str("%%"))
-print("test accuracy for perfect decision tree (fear)      = " + str(test_accuracy(x_test, y_test_fear, dec_tree_fear)*100)+str("%%"))
-print("test accuracy for perfect decision tree (happiness) = " + str(test_accuracy(x_test, y_test_happiness, dec_tree_happiness)*100)+str("%%"))
-print("test accuracy for perfect decision tree (sadness)   = " + str(test_accuracy(x_test, y_test_sadness, dec_tree_sadness)*100)+str("%%"))
-print("test accuracy for perfect decision tree (surprise)  = " + str(test_accuracy(x_test, y_test_surprise, dec_tree_surprise)*100)+str("%%"))
+dec_tree_sadness =   decision_tree_learning(x_clean, range(45), bin_sadness)
+dec_tree_surprise =  decision_tree_learning(x_clean, range(45), bin_surprise)
 
 
-#######################################         Test all emotions         #######################################
+#######################################         Learning on noisy data set        ######################################
+print("\nLearning on NOISY data set ...")
+dec_tree_anger_n =     decision_tree_learning(x_noisy, range(45), bin_anger_n)
+dec_tree_disgust_n =   decision_tree_learning(x_noisy, range(45), bin_disgust_n)
+dec_tree_fear_n =      decision_tree_learning(x_noisy, range(45), bin_fear_n)
+dec_tree_happiness_n = decision_tree_learning(x_noisy, range(45), bin_happiness_n)
+dec_tree_sadness_n =   decision_tree_learning(x_noisy, range(45), bin_sadness_n)
+dec_tree_surprise_n =  decision_tree_learning(x_noisy, range(45), bin_surprise_n)
 
-print("\nTest All Emotions")
+
+#######################################           Test on clean data set          ######################################
+print("\nTest perfect decision trees on the whole CLEAN data set ...")
+
+print("test accuracy for perfect decision tree (anger)     = " + str(np.round(
+    test_accuracy(x_clean, bin_anger, dec_tree_anger) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (disgust)   = " + str(np.round(
+    test_accuracy(x_clean, bin_disgust, dec_tree_disgust) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (fear)      = " + str(np.round(
+    test_accuracy(x_clean, bin_fear, dec_tree_fear) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (happiness) = " + str(np.round(
+    test_accuracy(x_clean, bin_happiness, dec_tree_happiness) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (sadness)   = " + str(np.round(
+    test_accuracy(x_clean, bin_sadness, dec_tree_sadness) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (surprise)  = " + str(np.round(
+    test_accuracy(x_clean, bin_surprise, dec_tree_surprise) * 100,2)) + str("%%"))
+
+
+#######################################           Test on clean data set          ######################################
+print("\nTest perfect decision trees on the whole NOISY data set ...")
+
+print("test accuracy for perfect decision tree (anger)     = " + str(np.round(
+    test_accuracy(x_noisy, bin_anger_n, dec_tree_anger_n) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (disgust)   = " + str(np.round(
+    test_accuracy(x_noisy, bin_disgust_n, dec_tree_disgust_n) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (fear)      = " + str(np.round(
+    test_accuracy(x_noisy, bin_fear_n, dec_tree_fear_n) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (happiness) = " + str(np.round(
+    test_accuracy(x_noisy, bin_happiness_n, dec_tree_happiness_n) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (sadness)   = " + str(np.round(
+    test_accuracy(x_noisy, bin_sadness_n, dec_tree_sadness_n) * 100,2)) + str("%%"))
+print("test accuracy for perfect decision tree (surprise)  = " + str(np.round(
+    test_accuracy(x_noisy, bin_surprise_n, dec_tree_surprise_n) * 100,2)) + str("%%"))
+
+
+###################################          Test all emotions on clean data set         ###############################
+print("\nTest all emotions on CLEAN data set...")
 trees = [dec_tree_anger, dec_tree_disgust, dec_tree_fear, dec_tree_happiness, dec_tree_sadness, dec_tree_surprise]
 
 prediction_all_emotions = []
@@ -72,31 +101,40 @@ for i in range(x_clean.shape[0]):
     prediction_all_emotions.append(testTrees(trees, x_clean[i]))
 prediction_all_emotions = np.reshape(np.array(prediction_all_emotions), [x_clean.shape[0], 1])
 
-print("test accuracy for perfect decision tree (all emotions) = " + str(round(np.sum(prediction_all_emotions == y_clean)/len(y_clean), 2)*100) + str("%%"))
+print("test accuracy for perfect decision tree (all emotions) = " + str(
+    np.round(np.sum(prediction_all_emotions == y_clean) / len(y_clean), 2) * 100) + str("%%"))
 
-print("\nK Folds:")
+
+###################################          Test all emotions on noisy data set         ###############################
+print("\nTest all emotions on NOISY data set...")
+trees_n = [dec_tree_anger_n, dec_tree_disgust_n, dec_tree_fear_n,
+           dec_tree_happiness_n, dec_tree_sadness_n, dec_tree_surprise_n]
+
+prediction_all_emotions_noisy = []
+for i in range(x_noisy.shape[0]):
+    prediction_all_emotions_noisy.append(testTrees(trees_n, x_noisy[i]))
+prediction_all_emotions_noisy = np.reshape(np.array(prediction_all_emotions_noisy), [x_noisy.shape[0], 1])
+
+print("test accuracy for perfect decision tree (all emotions) = " + str(
+    np.round(np.sum(prediction_all_emotions_noisy == y_noisy) / len(y_noisy), 2) * 100) + str("%%"))
+
+
+############################     k-folds cross validation on clean and noisy data sets        ##########################
+print("\n10-folds cross validation for CLEAN data set:\n")
 k_fold_cross_validation(10, x_clean, y_clean)
 
-print("\nConfusion matrix")
-#test confusion  matrix
-confusion_matrix(prediction_all_emotions, y_clean)
+print("\n10-folds cross validation for NOISY data set:\n")
+k_fold_cross_validation(10, x_noisy, y_noisy)
 
-#USED TO TEST   
-cmat = confusion_matrix(prediction_all_emotions, y_clean)
-print(cmat)
-recall_rate = recall(cmat)
-precision_rate = precision(cmat)
-f1_measure(precision_rate, recall_rate)
-classification_rate(cmat)
 
 #######################################         Visualisation         #######################################
-
 draw_tree(dec_tree_anger, 'dec_tree_anger')
 draw_tree(dec_tree_disgust, 'dec_tree_disgust')
 draw_tree(dec_tree_fear, 'dec_tree_fear')
 draw_tree(dec_tree_happiness, 'dec_tree_happiness')
 draw_tree(dec_tree_sadness, 'dec_tree_sadness')
 draw_tree(dec_tree_surprise, 'dec_tree_surprise')
+
 
 #######################################         save trees         #######################################
 save_tree(dec_tree_anger, './results/dec_tree_anger.p')
@@ -106,7 +144,9 @@ save_tree(dec_tree_happiness, './results/dec_tree_happiness.p')
 save_tree(dec_tree_sadness, './results/dec_tree_sadness.p')
 save_tree(dec_tree_surprise, './results/dec_tree_surprise.p')
 
+
 #######################################         load trees         #######################################
 dec_tree_anger = load_tree('./results/dec_tree_anger.p')
 print("")
-print("test accuracy for pickled decision tree (anger)     = " + str(test_accuracy(x_test, y_test_anger, dec_tree_anger)*100)+str("%%"))
+print("test accuracy for pickled decision tree (anger)     = " + str(np.round(
+    test_accuracy(x_clean, bin_anger, dec_tree_anger) * 100,2)) + str("%%"))

@@ -152,7 +152,7 @@ def test_accuracy(x_test, y_test, decision_tree):
     return np.sum(predictions == y_test) / len(y_test)
 
 
-def testTrees(T, x_data):
+def predict_point(T, x_data):
     # Choose first emotion found
     for i in range(6):
         if prediction(T[i], x_data) == 1:
@@ -160,7 +160,7 @@ def testTrees(T, x_data):
     return randint(1, 6)
 
 
-def testTrees2(T, x_data):
+def predict_point2(T, x_data):
     # Choose randomly from predicted emotions
     predicted_emotions = []
     for i in range(6):
@@ -170,6 +170,14 @@ def testTrees2(T, x_data):
         return randint(1, 6)
     else:
         return choice(predicted_emotions)
+
+def testTrees(T, x2, predict_func=predict_point):
+    # return predictions for all data points
+    predictions = []
+    for j in range(x2.shape[0]):
+        predictions.append(predict_func(T, x2[j]))
+    predictions = np.reshape(np.array(predictions), [x2.shape[0], 1])
+    return predictions
 
 
 #######################################         k-folds cross validation         #######################################
@@ -199,10 +207,12 @@ def k_fold_cross_validation(k, x_data, y_data):
             tree_list.append(dec_tree)
 
         # predict on kth part
-        pred_all_emotions = []
-        for j in range(x_test.shape[0]):
-            pred_all_emotions.append(testTrees(tree_list, x_test[j]))
-        pred_all_emotions = np.reshape(np.array(pred_all_emotions), [x_test.shape[0], 1])
+        # pred_all_emotions = []
+        # for j in range(x_test.shape[0]):
+        #     pred_all_emotions.append(predict_point(tree_list, x_test[j]))
+        # pred_all_emotions = np.reshape(np.array(pred_all_emotions), [x_test.shape[0], 1])
+
+        pred_all_emotions = testTrees(tree_list, x_test, predict_func=predict_point)
 
         # get accuracy
         conf_mat += confusion_matrix(pred_all_emotions, y_test)

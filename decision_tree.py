@@ -15,6 +15,7 @@ class Tree:
         self.op = op  # label of the attribute that is being tested
         self.kids = [0, 0]  # left and right children of the current node
         self.label = None  # label for leaf nodes
+        self.prob = None
 
     def getLeftChild(self):
         return self.kids[0]
@@ -98,6 +99,7 @@ def decision_tree_learning(examples, attributes, binary_target):
     if np.all(binary_target == binary_target[0], axis=0):
         tree = Tree('')
         tree.setLabel(int(binary_target[0]))
+        tree.prob = np.mean(binary_target)
         return tree
 
     elif len(attributes) == 0:
@@ -105,6 +107,7 @@ def decision_tree_learning(examples, attributes, binary_target):
 
         tree = Tree('')
         tree.setLabel(mode)
+        tree.prob = np.mean(binary_target)
 
         return tree
 
@@ -113,6 +116,7 @@ def decision_tree_learning(examples, attributes, binary_target):
         best_attribute = choose_best_decision_attribute(examples, attributes, binary_target)
         op = attributes[best_attribute]
         tree = Tree(op)
+        tree.prob = np.mean(binary_target)
 
         examples_0 = examples[examples[:, best_attribute] == 0]
 
@@ -128,6 +132,7 @@ def decision_tree_learning(examples, attributes, binary_target):
 
             tree = Tree('')
             tree.setLabel(mode)
+            tree.prob = np.mean(binary_target)
 
         else:
             leftTree = decision_tree_learning(examples_0, attributes, binary_target0)
@@ -149,6 +154,16 @@ def prediction(decision_tree, x_data):
             decision_tree = decision_tree.getRightChild()
     return decision_tree.getLabel()
 
+def probability(decision_tree, x_data):
+    prob = 1
+    while decision_tree.getLabel() == None:
+        op = decision_tree.getOp()
+        prob = (prob + decision_tree.prob)/2
+        if (x_data[op] == 0):
+            decision_tree = decision_tree.getLeftChild()
+        else:
+            decision_tree = decision_tree.getRightChild()
+    return prob
 
 def test_accuracy(x_test, y_test, decision_tree):
     predictions = []
@@ -177,6 +192,17 @@ def predict_point2(T, x_data):
     else:
         return choice(predicted_emotions)
 
+def predict_point3(T, x_data):
+    # Choose most likely from predicted emotions based on
+    # proportion of positives at previous nodes
+    predicted_emotions = []
+    for i in range(6):
+        predicted_emotions.append((probability(T[i], x_data), i + 1))
+    if len(predicted_emotions) == 0:
+        return randint(1, 6)
+    else:
+        return max(predicted_emotions)[1]
+
 def testTrees(T, x2):
     # return predictions for all data points using predict_point
     predictions = []
@@ -190,6 +216,14 @@ def testTrees2(T, x2):
     predictions = []
     for j in range(x2.shape[0]):
         predictions.append(predict_point2(T, x2[j]))
+    predictions = np.reshape(np.array(predictions), [x2.shape[0], 1])
+    return predictions
+
+def testTrees3(T, x2):
+    # return predictions for all data points using predict_point3
+    predictions = []
+    for j in range(x2.shape[0]):
+        predictions.append(predict_point3(T, x2[j]))
     predictions = np.reshape(np.array(predictions), [x2.shape[0], 1])
     return predictions
 
@@ -220,7 +254,7 @@ def k_fold_cross_validation(k, x_data, y_data):
             dec_tree = decision_tree_learning(x_train, range(45), bin_emotion)
             tree_list.append(dec_tree)
 
-        pred_all_emotions = testTrees(tree_list, x_test)
+        pred_all_emotions = testTrees3(tree_list, x_test)
 
         # get accuracy
         conf_mat += confusion_matrix(pred_all_emotions, y_test)

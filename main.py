@@ -96,7 +96,7 @@ print("test accuracy for perfect decision tree (surprise)  = " + str(np.round(
 print("\nTest all emotions on CLEAN data set...")
 trees = [dec_tree_anger, dec_tree_disgust, dec_tree_fear, dec_tree_happiness, dec_tree_sadness, dec_tree_surprise]
 
-prediction_all_emotions = testTrees(trees, x_clean)
+prediction_all_emotions = testTrees3(trees, x_clean)
 
 print("test accuracy for perfect decision tree (all emotions) = " + str(
     np.round(np.sum(prediction_all_emotions == y_clean) / len(y_clean), 2) * 100) + str("%%"))
@@ -107,7 +107,7 @@ print("\nTest all emotions on NOISY data set...")
 trees_n = [dec_tree_anger_n, dec_tree_disgust_n, dec_tree_fear_n,
            dec_tree_happiness_n, dec_tree_sadness_n, dec_tree_surprise_n]
 
-prediction_all_emotions_noisy = testTrees(trees_n, x_noisy)
+prediction_all_emotions_noisy = testTrees3(trees_n, x_noisy)
 
 print("test accuracy for perfect decision tree (all emotions) = " + str(
     np.round(np.sum(prediction_all_emotions_noisy == y_noisy) / len(y_noisy), 2) * 100) + str("%%"))

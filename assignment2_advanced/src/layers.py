@@ -1,0 +1,140 @@
+import numpy as np
+
+
+def linear_forward(X, W, b):
+    """
+    Computes the forward pass for a linear (fully-connected) layer.
+
+    Args:
+    - X: A numpy array of shape (N, d_1, ..., d_K) incoming data
+    - W: Anumpy array of shape (K, M) of weights
+    - b: A numpy array of shape (M, ) of biases
+
+    Returns:
+    - out: linear transformation to the incoming data
+
+
+    """
+
+    X = np.reshape(X,[X.shape[0], np.prod(X.shape[1:])])
+    out = np.dot(X,W) + b
+
+    return out
+
+
+def linear_backward(dout, X, W, b):
+    """
+    Computes the backward pass for a linear (fully-connected) layer.
+
+    Args:
+    - dout: Upstream derivative, of shape (N, M)
+    - X: A numpy array of shape (N, d_1, ..., d_K) incoming data
+    - W: Anumpy array of shape (K, M) of weights
+    - b: A numpy array of shape (M, ) of biases
+
+    Returns (as tuple):
+    - dX: A numpy array of shape (N, d1, ..., d_k), gradient with respect to x
+    - dW: A numpy array of shape (D, M), gradient with respect to W
+    - db: A nump array of shape (M,), gradient with respect to b
+    """
+
+    dX = calc_gradient(lambda X: linear_forward(X, W, b), X, dout)
+    dW = calc_gradient(lambda W: linear_forward(X, W, b), W, dout)
+    db = calc_gradient(lambda b: linear_forward(X, W, b), b, dout)
+
+
+    return dX, dW, db
+
+# TODO: change this (its using the same procedure as in test_layers.py, but without the central formmular)
+def calc_gradient(f, x, df, h=1e-4):
+    grad = np.zeros_like(x)
+    it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
+    while not it.finished:
+        ix = it.multi_index
+        val = x[ix]
+        x[ix] = val+h
+        f_x_h = f(x).copy()
+        x[ix] = val
+        f_x = f(x)
+
+        grad[ix] = np.sum((f_x_h - f_x)* df) / h
+        it.iternext()
+    return grad
+
+def relu_forward(X):
+    """
+    Computes the forward pass for rectified linear unit (ReLU) layer.
+    Args:
+    - X: Input, an numpy array of any shape
+    Returns:
+    - out: An numpy array, same shape as X
+    """
+
+    out = X.copy()  # Must use copy in numpy to avoid pass by reference.
+    out[out < 0] = 0
+
+    return out
+
+
+def relu_backward(dout, X):
+    """
+    Computes the backward pass for rectified linear unit (ReLU) layer.
+    Args:
+    - dout: Upstream derivative, an numpy array of any shape
+    - X: Input, an numpy array with the same shape as dout
+    Returns:
+    - dX: A numpy array, derivative with respect to X
+    """
+    dX = calc_gradient(lambda X: relu_forward(X), X, dout)
+
+    return dX
+
+
+def dropout_forward(X, p=0.5, train=True, seed=42):
+    """
+    Compute f
+    Args:
+    - X: Input data, a numpy array of any shape.
+    - p: Dropout parameter. We drop each neuron output with probability p.
+    Default is p=0.5.
+    - train: Mode of dropout. If train is True, then perform dropout;
+      Otherwise train is False (= test mode). Default is train=True.
+
+    Returns (as a tuple):
+    - out: Output of dropout applied to X, same shape as X.
+    - mask: In training mode, mask is the dropout
+      mask that was used to multiply the input; in test mode, mask is None.
+    """
+    if seed:
+        np.random.seed(seed)
+    q = 1-p
+    if train == True:
+        mask = 1/q*np.random.binomial(1,p=q, size = X.shape)
+        out = np.multiply(mask,X)
+    else:
+        mask = None
+        out = X
+
+    return out, mask
+
+
+def dropout_backward(dout, mask, p=0.5, train=True):
+    """
+    Compute the backward pass for dropout
+    Args:
+    - dout: Upstream derivative, a numpy array of any shape
+    - mask: In training mode, mask is the dropout mask that was used to
+      multiply the input; in test mode, mask is None.
+    - p: Dropout parameter. We drop each neuron output with probability p.
+    Default is p=0.5.
+    - train: Mode of dropout. If train is True, then perform dropout;
+      Otherwise train is False (= test mode). Default is train=True.
+
+    Returns:
+    - dX: A numpy array, derivative with respect to X
+    """
+    if train == True:
+        dX = mask*dout
+    else:
+        dX = dout
+    return dX

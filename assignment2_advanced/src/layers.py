@@ -16,6 +16,7 @@ def linear_forward(X, W, b):
 
     """
 
+    #X.shape[0] - N
     X = np.reshape(X,[X.shape[0], np.prod(X.shape[1:])])
     out = np.dot(X,W) + b
 

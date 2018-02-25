@@ -1,6 +1,16 @@
 import numpy as np
 import unittest
 
+'''
+#Anya - otherwise does not run
+import sys
+sys.path.append('/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW/395_machine_learning/assignment2_advanced/src/')
+import layers
+sys.path.append('/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW/395_machine_learning/assignment2_advanced/test/')
+from gradient_check import eval_numerical_gradient_array
+sys.path.append('/Users/a123/Documents/Imperial/Year4/Courses/ML_395/CW/395_machine_learning/assignment2_advanced/test/')
+from utils import rel_error, print_test'''
+
 from assignment2_advanced.src import layers
 from assignment2_advanced.test.gradient_check import eval_numerical_gradient_array
 from assignment2_advanced.test.utils import rel_error, print_test

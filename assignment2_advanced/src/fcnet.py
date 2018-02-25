@@ -20,8 +20,16 @@ def random_init(n_in, n_out, weight_scale=5e-2, dtype=np.float32):
     ###########################################################################
     #                           BEGIN OF YOUR CODE                            #
     ###########################################################################
-
-
+    
+    #initialise weight matrix:
+    W = np.zeros((n_in,n_out))
+    for i in range(n_in):
+        for j in range(n_out):
+            W[i,j] = np.random.normal(0, weight_scale)
+            
+    #initialize the biased
+    b = np.zeros(n_out)
+    
     ###########################################################################
     #                            END OF YOUR CODE                             #
     ###########################################################################
@@ -70,6 +78,10 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
+        W,b = random_init(self.num_classes, self.input_dim, weight_scale=5e-2, dtype=np.float32)
+        for i in range(self.input_dim):
+            self.params.update({'W_'+str(i): W[:,i]})
+            self.params.update({'b_'+str(i): b[i]})
 
         #######################################################################
         #                            END OF YOUR CODE                         #

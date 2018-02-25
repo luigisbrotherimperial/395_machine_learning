@@ -78,10 +78,10 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
-        W,b = random_init(self.num_classes, self.input_dim, weight_scale=5e-2, dtype=np.float32)
-        for i in range(self.input_dim):
-            self.params.update({'W_'+str(i): W[:,i]})
-            self.params.update({'b_'+str(i): b[i]})
+        self.W, self.b = random_init(self.input_dim, self.num_classes, weight_scale=5e-2, dtype=np.float32)
+        for i in range(self.num_classes):
+            self.params.update({'W'+str(i): self.W[:,i]})
+            self.params.update({'b'+str(i): self.b[i]})
 
         #######################################################################
         #                            END OF YOUR CODE                         #
@@ -90,6 +90,8 @@ class FullyConnectedNet(object):
         # each dropout layer so that the layer knows the dropout probability
         # and the mode (train / test). You can pass the same dropout_param to
         # each dropout layer.
+        
+        
         self.dropout_params = dict()
         if self.use_dropout:
             self.dropout_params = {"train": True, "p": dropout}
@@ -114,8 +116,7 @@ class FullyConnectedNet(object):
         and return a tuple of:
         - loss: Scalar value giving the loss
         - grads: Dictionary with the same keys as self.params, mapping
-        parameter
-          names to gradients of the loss with respect to those parameters.
+        parameter names to gradients of the loss with respect to those parameters.
         """
         scores = None
         X = X.astype(self.dtype)
@@ -129,8 +130,17 @@ class FullyConnectedNet(object):
         #######################################################################
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
-
-
+        
+        X = np.reshape(X,[X.shape[0], np.prod(X.shape[1:])])
+        out = np.copy(X)
+        
+        for i in range(self.hidden_dims-1):
+            out_f = linear_forward(out, self.W, self.b)
+            out = relu_forward(out_f)
+            
+        out_f = linear_forward(out, self.W, self.b)
+        scores = softmax(out_f, y)
+ 
         #######################################################################
         #                            END OF YOUR CODE                         #
         #######################################################################
@@ -152,6 +162,7 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
+        
 
         #######################################################################
         #                            END OF YOUR CODE                         #

@@ -11,7 +11,7 @@ TODO: Overfit the network with 50 samples of CIFAR-10
 #                           BEGIN OF YOUR CODE                            #
 ###########################################################################
 # Parameters
-hidden_dims = 2
+hidden_dims = [50]
 update_rule = 'sgd' # ['sgd', 'sgd_momentum']
 num_epochs = 20
 

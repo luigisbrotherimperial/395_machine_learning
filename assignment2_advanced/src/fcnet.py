@@ -1,6 +1,6 @@
 import numpy as np
 
-from assignment2_advanced.src.classifiers import softmax
+from assignment2_advanced.src.classifiers import softmax, softmax_classifier
 from assignment2_advanced.src.layers import (linear_forward, linear_backward, relu_forward,
                         relu_backward, dropout_forward, dropout_backward)
 
@@ -20,16 +20,16 @@ def random_init(n_in, n_out, weight_scale=5e-2, dtype=np.float32):
     ###########################################################################
     #                           BEGIN OF YOUR CODE                            #
     ###########################################################################
-    
+
     #initialise weight matrix:
     W = np.zeros((n_in,n_out))
     for i in range(n_in):
         for j in range(n_out):
             W[i,j] = np.random.normal(0, weight_scale)
-            
+
     #initialize the biased
     b = np.zeros(n_out)
-    
+
     ###########################################################################
     #                            END OF YOUR CODE                             #
     ###########################################################################
@@ -78,10 +78,14 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
-        self.W, self.b = random_init(self.input_dim, self.num_classes, weight_scale=5e-2, dtype=np.float32)
-        for i in range(self.num_classes):
-            self.params.update({'W'+str(i): self.W[:,i]})
-            self.params.update({'b'+str(i): self.b[i]})
+        dim_list = [input_dim] + hidden_dims + [num_classes]
+        for i in range(self.num_layers):
+            in_dim = dim_list[i]
+            out_dim = dim_list[i+1]
+            #print('W' + str(i), 'has shape', in_dim, out_dim)
+            W_init, b_init = random_init(in_dim, out_dim, weight_scale=5e-2, dtype=np.float32)
+            self.params.update({'W'+str(i): W_init})
+            self.params.update({'b'+str(i): b_init})
 
         #######################################################################
         #                            END OF YOUR CODE                         #
@@ -90,8 +94,8 @@ class FullyConnectedNet(object):
         # each dropout layer so that the layer knows the dropout probability
         # and the mode (train / test). You can pass the same dropout_param to
         # each dropout layer.
-        
-        
+
+
         self.dropout_params = dict()
         if self.use_dropout:
             self.dropout_params = {"train": True, "p": dropout}
@@ -130,24 +134,30 @@ class FullyConnectedNet(object):
         #######################################################################
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
-        
+        # [linear - relu - (dropout)] x (N - 1) - linear - softmax
+
         X = np.reshape(X,[X.shape[0], np.prod(X.shape[1:])])
         out = np.copy(X)
-        
-        for i in range(self.hidden_dims-1):
-            out_f = linear_forward(out, self.W, self.b)
+
+        for i in range(self.num_layers-1):
+            W = self.params['W'+str(i)]
+            b = self.params['b'+str(i)]
+            out_f = linear_forward(out, W, b)
             out = relu_forward(out_f)
-            
-        out_f = linear_forward(out, self.W, self.b)
-        scores = softmax(out_f, y)
- 
+
+        final_num = str(self.num_layers - 1)
+        out_f = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
+        loss, dlogits = softmax(out_f, y)
+        scores = softmax_classifier(out_f, out_f.shape[0])
+
         #######################################################################
         #                            END OF YOUR CODE                         #
         #######################################################################
         # If y is None then we are in test mode so just return scores
         if y is None:
             return scores
-        loss, grads = 0, dict()
+        #loss, grads = 0, dict()
+        grads = dict()
 
         """
         TODO: Implement the backward pass for the fully-connected net. Store
@@ -162,7 +172,31 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
-        
+        # calculate mean squared error
+        # num_samples, num_classes = scores.shape
+        # print('num_samples, num_classes', scores.shape)
+        # mse = np.zeros((num_samples,))
+        # for i in range(num_samples):
+        #     one_hot = np.zeros(num_classes)
+        #     one_hot[y[i]] = 1
+        #     print('scores[{}]:'.format(i), scores[i])
+        #     print('one_hot:', one_hot)
+        #     mse[i] = 0.5 * np.linalg.norm(scores[i] - one_hot)
+        #     print('mse:', mse)
+        #     print()
+        #
+        # dout = mse
+        #
+        # for i in range(self.num_layers-1 -1, -1, -1): # count backwards
+        #     W = self.params['W'+str(i)]
+        #     b = self.params['b'+str(i)]
+        #     dout = relu_backward(dout, X)
+        #     dX, dW, db = linear_backward(dout, X, W, b)
+
+        # final_num = str(self.num_layers - 1)
+        # out_f = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
+        # loss, scores = softmax(out_f, y)
+
 
         #######################################################################
         #                            END OF YOUR CODE                         #

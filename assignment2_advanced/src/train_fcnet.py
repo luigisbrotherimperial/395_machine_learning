@@ -5,14 +5,14 @@ from assignment2_advanced.src.utils.solver import Solver
 from assignment2_advanced.src.utils.data_utils import get_CIFAR10_data
 
 """
-TODO: Use a Solver instance to train a TwoLayerNet that achieves at least 50% 
+TODO: Use a Solver instance to train a TwoLayerNet that achieves at least 50%
 accuracy on the validation set.
 """
 ###########################################################################
 #                           BEGIN OF YOUR CODE                            #
 ###########################################################################
 # Parameters
-hidden_dims = 2
+hidden_dims = [50]
 update_rule = 'sgd' # ['sgd', 'sgd_momentum']
 num_epochs = 20
 

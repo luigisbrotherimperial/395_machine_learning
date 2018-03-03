@@ -45,21 +45,6 @@ def linear_backward(dout, X, W, b):
 
     return dX, dW, db
 
-# TODO: change this (its using the same procedure as in test_layers.py, but without the central formmular)
-def calc_gradient(f, x, df, h=1e-4):
-    grad = np.zeros_like(x)
-    it = np.nditer(x, flags=['multi_index'], op_flags=['readwrite'])
-    while not it.finished:
-        ix = it.multi_index
-        val = x[ix]
-        x[ix] = val+h
-        f_x_h = f(x).copy()
-        x[ix] = val
-        f_x = f(x)
-
-        grad[ix] = np.sum((f_x_h - f_x)* df) / h
-        it.iternext()
-    return grad
 
 def relu_forward(X):
     """
@@ -85,7 +70,7 @@ def relu_backward(dout, X):
     Returns:
     - dX: A numpy array, derivative with respect to X
     """
-    dX = calc_gradient(lambda X: relu_forward(X), X, dout)
+    dX = dout * (X >= 0)
 
     return dX
 

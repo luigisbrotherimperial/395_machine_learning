@@ -172,15 +172,17 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
+        # get errors and regularised loss
         loss, dlogits = softmax(scores, y)
-        # ADD REGULARISATION HERE
+        loss += 0.5 * self.reg * np.sum(self.params['W'+final_num] ** 2)
 
         # backprop final linear and store gradients
         final_num = str(self.num_layers - 1)
         dX, dW, db = linear_backward(dlogits, linear_cache[final_num], self.params['W'+final_num], self.params['b'+final_num])
-        grads['W'+final_num] = dW
+        grads['W'+final_num] = dW + self.reg * self.params['W'+final_num]
         grads['b'+final_num] = db
 
+        # backprop all layers
         for i in range(self.num_layers-1 - 1, -1, -1): # count backwards
             W = self.params['W'+str(i)]
             b = self.params['b'+str(i)]
@@ -189,8 +191,12 @@ class FullyConnectedNet(object):
             dX = relu_backward(dX, relu_cache[str(i)])
             dX, dW, db = linear_backward(dX, linear_cache[str(i)], W, b)
 
-            grads['W'+str(i)] = dW
+            # store weight gradients with shrinkage
+            grads['W'+str(i)] = dW + self.reg * self.params['W'+str(i)]
             grads['b'+str(i)] = db
+
+            # add regularisation to loss for each layer.
+            loss += 0.5 * self.reg * np.sum(self.params['W'+str(i)] ** 2)
 
         #######################################################################
         #                            END OF YOUR CODE                         #

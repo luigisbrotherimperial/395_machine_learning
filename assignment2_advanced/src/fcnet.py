@@ -139,6 +139,7 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers-1):
             W = self.params['W'+str(i)]
             b = self.params['b'+str(i)]
+            linear_cache[str(i)] = out
             out = linear_forward(out, W, b)
             relu_cache[str(i)] = out
             out = relu_forward(out)
@@ -147,6 +148,7 @@ class FullyConnectedNet(object):
                 dropout_cache[str(i)] = mask
 
         final_num = str(self.num_layers - 1)
+        linear_cache[final_num] = out
         scores = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
 
         #######################################################################
@@ -175,7 +177,7 @@ class FullyConnectedNet(object):
 
         # backprop final linear and store gradients
         final_num = str(self.num_layers - 1)
-        dX, dW, db = linear_backward(dlogits, X, self.params['W'+final_num], self.params['b'+final_num])
+        dX, dW, db = linear_backward(dlogits, linear_cache[final_num], self.params['W'+final_num], self.params['b'+final_num])
         grads['W'+final_num] = dW
         grads['b'+final_num] = db
 
@@ -184,9 +186,8 @@ class FullyConnectedNet(object):
             b = self.params['b'+str(i)]
             if self.use_dropout:
                 dX = dropout_backward(dX, dropout_cache[str(i)], **self.dropout_params)
-            out = relu_cache[str(i)]
-            dX = relu_backward(dX, out)
-            dX, dW, db = linear_backward(dX, out, W, b)
+            dX = relu_backward(dX, relu_cache[str(i)])
+            dX, dW, db = linear_backward(dX, linear_cache[str(i)], W, b)
 
             grads['W'+str(i)] = dW
             grads['b'+str(i)] = db

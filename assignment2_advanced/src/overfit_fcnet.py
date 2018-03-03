@@ -15,8 +15,8 @@ hidden_dims = [50]
 update_rule = 'sgd' # ['sgd', 'sgd_momentum']
 num_epochs = 20
 
-# Get data and limit to 50 samples (?)
-data = get_CIFAR10_data()
+# Get data and limit to 50 samples
+data = get_CIFAR10_data(50, 0, 0, True)
 
 # Create net and train
 net = FullyConnectedNet(hidden_dims, input_dim=32*32*3, num_classes=10, dropout=0)

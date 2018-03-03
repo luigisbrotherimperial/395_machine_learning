@@ -39,10 +39,9 @@ def linear_backward(dout, X, W, b):
     - db: A nump array of shape (M,), gradient with respect to b
     """
 
-    dX = calc_gradient(lambda X: linear_forward(X, W, b), X, dout)
-    dW = calc_gradient(lambda W: linear_forward(X, W, b), W, dout)
-    db = calc_gradient(lambda b: linear_forward(X, W, b), b, dout)
-
+    dX = np.dot(dout, W.transpose()).reshape(X.shape)
+    dW = np.dot(X.reshape((X.shape[0], -1)).transpose(), dout)
+    db = np.sum(dout, axis=0)
 
     return dX, dW, db
 

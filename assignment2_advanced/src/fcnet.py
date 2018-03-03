@@ -22,10 +22,7 @@ def random_init(n_in, n_out, weight_scale=5e-2, dtype=np.float32):
     ###########################################################################
 
     #initialise weight matrix:
-    W = np.zeros((n_in,n_out))
-    for i in range(n_in):
-        for j in range(n_out):
-            W[i,j] = np.random.normal(0, weight_scale)
+    W = np.random.normal(0, weight_scale, (n_in, n_out))
 
     #initialize the biased
     b = np.zeros(n_out)
@@ -84,8 +81,8 @@ class FullyConnectedNet(object):
             out_dim = dim_list[i+1]
             #print('W' + str(i), 'has shape', in_dim, out_dim)
             W_init, b_init = random_init(in_dim, out_dim, weight_scale=5e-2, dtype=np.float32)
-            self.params.update({'W'+str(i): W_init})
-            self.params.update({'b'+str(i): b_init})
+            self.params['W'+str(i)] = W_init
+            self.params['b'+str(i)] = b_init
 
         #######################################################################
         #                            END OF YOUR CODE                         #
@@ -142,13 +139,15 @@ class FullyConnectedNet(object):
         for i in range(self.num_layers-1):
             W = self.params['W'+str(i)]
             b = self.params['b'+str(i)]
-            out_f = linear_forward(out, W, b)
-            out = relu_forward(out_f)
+            out = linear_forward(out, W, b)
+            relu_cache[str(i)] = out
+            out = relu_forward(out)
+            if self.use_dropout:
+                out, mask = dropout_forward(out, **self.dropout_params)
+                dropout_cache[str(i)] = mask
 
         final_num = str(self.num_layers - 1)
-        out_f = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
-        loss, dlogits = softmax(out_f, y)
-        scores = softmax_classifier(out_f, out_f.shape[0])
+        scores = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
 
         #######################################################################
         #                            END OF YOUR CODE                         #
@@ -156,8 +155,7 @@ class FullyConnectedNet(object):
         # If y is None then we are in test mode so just return scores
         if y is None:
             return scores
-        #loss, grads = 0, dict()
-        grads = dict()
+        loss, grads = 0, dict()
 
         """
         TODO: Implement the backward pass for the fully-connected net. Store
@@ -172,31 +170,26 @@ class FullyConnectedNet(object):
         #                           BEGIN OF YOUR CODE                        #
         #######################################################################
 
-        # calculate mean squared error
-        # num_samples, num_classes = scores.shape
-        # print('num_samples, num_classes', scores.shape)
-        # mse = np.zeros((num_samples,))
-        # for i in range(num_samples):
-        #     one_hot = np.zeros(num_classes)
-        #     one_hot[y[i]] = 1
-        #     print('scores[{}]:'.format(i), scores[i])
-        #     print('one_hot:', one_hot)
-        #     mse[i] = 0.5 * np.linalg.norm(scores[i] - one_hot)
-        #     print('mse:', mse)
-        #     print()
-        #
-        # dout = mse
-        #
-        # for i in range(self.num_layers-1 -1, -1, -1): # count backwards
-        #     W = self.params['W'+str(i)]
-        #     b = self.params['b'+str(i)]
-        #     dout = relu_backward(dout, X)
-        #     dX, dW, db = linear_backward(dout, X, W, b)
+        loss, dlogits = softmax(scores, y)
+        # ADD REGULARISATION HERE
 
-        # final_num = str(self.num_layers - 1)
-        # out_f = linear_forward(out, self.params['W'+final_num], self.params['b'+final_num])
-        # loss, scores = softmax(out_f, y)
+        # backprop final linear and store gradients
+        final_num = str(self.num_layers - 1)
+        dX, dW, db = linear_backward(dlogits, X, self.params['W'+final_num], self.params['b'+final_num])
+        grads['W'+final_num] = dW
+        grads['b'+final_num] = db
 
+        for i in range(self.num_layers-1 - 1, -1, -1): # count backwards
+            W = self.params['W'+str(i)]
+            b = self.params['b'+str(i)]
+            if self.use_dropout:
+                dX = dropout_backward(dX, dropout_cache[str(i)], **self.dropout_params)
+            out = relu_cache[str(i)]
+            dX = relu_backward(dX, out)
+            dX, dW, db = linear_backward(dX, out, W, b)
+
+            grads['W'+str(i)] = dW
+            grads['b'+str(i)] = db
 
         #######################################################################
         #                            END OF YOUR CODE                         #

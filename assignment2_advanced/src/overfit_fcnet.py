@@ -10,21 +10,33 @@ TODO: Overfit the network with 50 samples of CIFAR-10
 ###########################################################################
 #                           BEGIN OF YOUR CODE                            #
 ###########################################################################
-# Parameters
-hidden_dims = [50]
-update_rule = 'sgd' # ['sgd', 'sgd_momentum']
-num_epochs = 20
 
 # Get data and limit to 50 samples
 data = get_CIFAR10_data(50, 0, 0, True)
+data['X_test'] = data['X_train']
+data['y_test'] = data['y_train']
+data['X_val'] = data['X_train']
+data['y_val'] = data['y_train']
 
-# Create net and train
-net = FullyConnectedNet(hidden_dims, input_dim=32*32*3, num_classes=10, dropout=0)
-slvr = Solver(model, data, update_rule=update_rule, num_epochs=num_epochs)
-slvr.train()
+# Create net and solver and train
+model = FullyConnectedNet(hidden_dims=[50],
+                          input_dim=32*32*3,
+                          num_classes=10,
+                          dropout=0)
+
+solver = Solver(model, data,
+                update_rule='sgd', # ['sgd', 'sgd_momentum']
+                optim_config={
+                  'learning_rate': 1e-3,
+                },
+                lr_decay=0.95,
+                num_epochs=20,
+                batch_size=100,
+                print_every=100)
+solver.train()
 
 # Check accuracy
-slvr.check_accuracy(data['X_test'], data['y_test'])
+solver.check_accuracy(data['X_test'], data['y_test'])
 
 ##############################################################################
 #                             END OF YOUR CODE                               #

@@ -7,7 +7,7 @@ def softmax(logits, y):
     Args:
     - logits: A numpy array of shape (N, C)
     - y: A numpy array of shape (N,). y represents the labels corresponding to
-    logits, where y[i] is the label of logits[i], and the value of y have a 
+    logits, where y[i] is the label of logits[i], and the value of y have a
     range of 0 <= y[i] < C
 
     Returns (as a tuple):

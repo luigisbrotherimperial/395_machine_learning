@@ -11,21 +11,34 @@ accuracy on the validation set.
 ###########################################################################
 #                           BEGIN OF YOUR CODE                            #
 ###########################################################################
-# Parameters
-hidden_dims = [50]
-update_rule = 'sgd' # ['sgd', 'sgd_momentum']
-num_epochs = 20
 
-# Get data
+# Get data and limit to 50 samples
+#data = get_CIFAR10_data(10000, 1000, 1000, True)
 data = get_CIFAR10_data()
 
-# Create net and train
-net = FullyConnectedNet(hidden_dims, input_dim=32*32*3, num_classes=10, dropout=0)
-slvr = Solver(model, data, update_rule=update_rule, num_epochs=num_epochs)
-slvr.train()
+# Create net and solver and train
+model = FullyConnectedNet(hidden_dims=[60, 75],
+                          input_dim=32*32*3,
+                          num_classes=10,
+                          dropout=0,
+                          reg=0.2,
+                          weight_scale=1e-2)
+
+solver = Solver(model, data,
+                update_rule='sgd_momentum', # ['sgd', 'sgd_momentum']
+                optim_config={
+                  'learning_rate': 2e-3,
+                },
+                lr_decay=0.95,
+                num_epochs=40,
+                batch_size=100,
+                print_every=100)
+solver.train()
 
 # Check accuracy
-slvr.check_accuracy(data['X_test'], data['y_test'])
+acc = solver.check_accuracy(data['X_test'], data['y_test'])
+
+print('Test set accuracy:', acc)
 
 ##############################################################################
 #                             END OF YOUR CODE                               #

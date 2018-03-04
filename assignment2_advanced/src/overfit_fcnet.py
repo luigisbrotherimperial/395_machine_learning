@@ -35,8 +35,10 @@ solver = Solver(model, data,
                 print_every=100)
 solver.train()
 
-# Check accuracy
-solver.check_accuracy(data['X_test'], data['y_test'])
+# Check accuracy on training data
+acc = solver.check_accuracy(data['X_train'], data['y_train'])
+
+print('Test set accuracy:', acc)
 
 ##############################################################################
 #                             END OF YOUR CODE                               #

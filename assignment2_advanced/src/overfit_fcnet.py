@@ -19,7 +19,9 @@ data = get_CIFAR10_data(50, 50, 50, True)
 model = FullyConnectedNet(hidden_dims=[50],
                           input_dim=32*32*3,
                           num_classes=10,
-                          dropout=0)
+                          dropout=0,
+                          reg=0.2,
+                          weight_scale=1e-2)
 
 solver = Solver(model, data,
                 update_rule='sgd', # ['sgd', 'sgd_momentum']

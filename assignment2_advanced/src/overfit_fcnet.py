@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 from assignment2_advanced.src.fcnet import FullyConnectedNet
 from assignment2_advanced.src.utils.solver import Solver
@@ -12,11 +13,7 @@ TODO: Overfit the network with 50 samples of CIFAR-10
 ###########################################################################
 
 # Get data and limit to 50 samples
-data = get_CIFAR10_data(50, 0, 0, True)
-data['X_test'] = data['X_train']
-data['y_test'] = data['y_train']
-data['X_val'] = data['X_train']
-data['y_val'] = data['y_train']
+data = get_CIFAR10_data(50, 50, 50, True)
 
 # Create net and solver and train
 model = FullyConnectedNet(hidden_dims=[50],
@@ -35,10 +32,21 @@ solver = Solver(model, data,
                 print_every=100)
 solver.train()
 
-# Check accuracy on training data
-acc = solver.check_accuracy(data['X_train'], data['y_train'])
+# Plot errors
+plt.subplot(2, 1, 1)
+plt.title('Training loss')
+plt.plot(solver.loss_history, '-o')
+plt.xlabel('Iteration')
 
-print('Test set accuracy:', acc)
+plt.subplot(2, 1, 2)
+plt.title('Accuracy')
+plt.plot(solver.train_acc_history, '-o', label='train')
+plt.plot(solver.val_acc_history, '-o', label='val')
+plt.plot([0.5] * len(solver.val_acc_history), 'k--')
+plt.xlabel('Epoch')
+plt.legend(loc='lower right')
+plt.gcf().set_size_inches(15, 12)
+plt.show()
 
 ##############################################################################
 #                             END OF YOUR CODE                               #

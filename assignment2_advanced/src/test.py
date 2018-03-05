@@ -1,4 +1,3 @@
-import os
 from assignment2_advanced.src.utils.load_fer import load_fer_data
 
 def test_fer_model(img_folder, model="/path/to/model"):
@@ -12,36 +11,29 @@ def test_fer_model(img_folder, model="/path/to/model"):
     preds = None
 
     # load images
-    X_train, y_train, X_val, y_val = load_fer_data(img_folder, 1000, 100)
+    #X_train, y_train, X_val, y_val = load_fer_data(img_folder, 0, 100)
+    test_filelist = sorted(glob.glob(img_folder + '/*.jpg'))
+    num_test_images = len(test_filelist)
+    X_test = np.ndarray(shape=(num_test_images, 48, 48, 3), dtype=np.float32)
+    for i in range(num_test_images):
+        if i % 100 == 0:
+            print(i, 'of', num_test_images, 'testing images loaded')
+        X_test[i] = img_to_array(load_img(test_filelist[i]))
     data = {
       'X_train': X_train, 'y_train': y_train,
       'X_val': X_val, 'y_val': y_val,
     }
 
     # load model
-    model = FullyConnectedNet(hidden_dims=[60, 75],
-                              input_dim=32*32*3,
-                              num_classes=10,
-                              dropout=0,
-                              reg=0.2,
-                              weight_scale=1e-2)
 
-    solver = Solver(model, data,
-                    update_rule='sgd_momentum', # ['sgd', 'sgd_momentum']
-                    optim_config={
-                      'learning_rate': 2e-3,
-                    },
-                    lr_decay=0.95,
-                    num_epochs=40,
-                    batch_size=100,
-                    print_every=100)
-    solver.train()
 
     # predict expressions
 
     return preds
 
 if __name__ == '__main__':
+    import os
+
     PATH = os.getcwd()
     print('PATH:', PATH)
     img_folder = PATH + '/datasets/FER2013'

@@ -12,11 +12,7 @@ def test_fer_model(img_folder, model="/path/to/model"):
     preds = None
 
     # load images
-    path_train = img_folder + "/Train/*.jpg"
-    path_test = img_folder + "/Test/*.jpg"
-    path_labels = img_folder + "/labels_public.txt"
-
-    X_train, y_train, X_val, y_val = load_fer_data(path_train, path_test, path_labels)
+    X_train, y_train, X_val, y_val = load_fer_data(img_folder, 1000, 100)
     data = {
       'X_train': X_train, 'y_train': y_train,
       'X_val': X_val, 'y_val': y_val,

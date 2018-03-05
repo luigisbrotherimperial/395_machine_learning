@@ -20,6 +20,7 @@ def softmax(logits, y):
     exps = softmax_classifier(logits,N)
     assert(np.allclose(np.sum(exps, axis=1), np.ones(N)))
     exp_sums = np.array([exps[i][y[i]] for i in range(N)])
+    exp_sums[exp_sums == 0] = 1e-40 # handles log of 0 warning
     loss = 1/N*np.sum(-np.log(exp_sums))
     m = y.shape[0]
     # https://deepnotes.io/softmax-crossentropy

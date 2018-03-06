@@ -29,14 +29,16 @@ data = {
   'X_val': X_val, 'y_val': y_val,
 }
 
-def model_accuracy(num_hidden_dims, hidden_dims_1, hidden_dims_2, hidden_dims_3, learning_rate_exp, momentum, batch_size, reg=0, dropout=0):
-    num_hidden_dims = int(round(num_hidden_dims))
+# make grayscale
+data['X_train'] = data['X_train'].mean(axis=3)
+data['X_val'] = data['X_val'].mean(axis=3)
+
+def model_accuracy(hidden_dims_1, hidden_dims_2, learning_rate_exp, momentum, batch_size, reg=0, dropout=0):
     hidden_dims_1 = int(hidden_dims_1)
     hidden_dims_2 = int(hidden_dims_2)
-    hidden_dims_3 = int(hidden_dims_3)
     batch_size = int(batch_size)
 
-    hidden_dims = [hidden_dims_1, hidden_dims_2, hidden_dims_3][:num_hidden_dims]
+    hidden_dims = [hidden_dims_1, hidden_dims_2]
 
     # Create net and solver and train
     model = FullyConnectedNet(hidden_dims=hidden_dims,
@@ -63,11 +65,9 @@ def model_accuracy(num_hidden_dims, hidden_dims_1, hidden_dims_2, hidden_dims_3,
     return solver.check_accuracy(X_val, y_val, batch_size=batch_size)
 
 bo = BayesianOptimization(model_accuracy,
-                          {'num_hidden_dims': (2, 3),
-                           'hidden_dims_1': (20, 1000),
+                          {'hidden_dims_1': (20, 1000),
                            'hidden_dims_2': (20, 1000),
-                           'hidden_dims_3': (20, 1000),
-                           'reg': (0, .3),
+                           'reg': (0, .5),
                            'learning_rate_exp': (-5, -4),
                            'momentum': (0.0, 1.0),
                            'batch_size': (50, 200)})

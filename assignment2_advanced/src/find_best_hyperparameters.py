@@ -16,8 +16,8 @@ accuracy on the validation set.
 ###########################################################################
 
 # settings
-num_train_images = 1000 # out of 28708
-num_test_images = 1000 # out of 3588
+num_train_images = 28708 # out of 28708
+num_test_images = 3588 # out of 3588
 
 # load images
 PATH = os.getcwd()
@@ -30,7 +30,7 @@ data = {
 }
 
 def model_accuracy(num_hidden_dims, hidden_dims_1, hidden_dims_2, hidden_dims_3, learning_rate_exp, momentum, batch_size, reg=0, dropout=0):
-    num_hidden_dims = round(num_hidden_dims)
+    num_hidden_dims = int(round(num_hidden_dims))
     hidden_dims_1 = int(hidden_dims_1)
     hidden_dims_2 = int(hidden_dims_2)
     hidden_dims_3 = int(hidden_dims_3)
@@ -53,7 +53,7 @@ def model_accuracy(num_hidden_dims, hidden_dims_1, hidden_dims_2, hidden_dims_3,
                       'momentum': momentum
                     },
                     lr_decay=0.95,
-                    num_epochs=100,
+                    num_epochs=40,
                     batch_size=batch_size,
                     print_every=100,
                     verbose=False)

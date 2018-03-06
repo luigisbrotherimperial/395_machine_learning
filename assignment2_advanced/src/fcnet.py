@@ -143,7 +143,8 @@ class FullyConnectedNet(object):
             out = linear_forward(out, W, b)
             relu_cache[str(i)] = out
             out = relu_forward(out)
-            if self.use_dropout:
+            # check if using dropout and not in test mode
+            if self.use_dropout and y is not None:
                 out, mask = dropout_forward(out, **self.dropout_params)
                 dropout_cache[str(i)] = mask
 

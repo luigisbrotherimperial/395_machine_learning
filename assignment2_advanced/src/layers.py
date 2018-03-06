@@ -75,7 +75,7 @@ def relu_backward(dout, X):
     return dX
 
 
-def dropout_forward(X, p=0.5, train=True, seed=42):
+def dropout_forward(X, p=0.5, train=True, seed=False):
     """
     Compute f
     Args:

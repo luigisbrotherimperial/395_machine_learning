@@ -267,7 +267,15 @@ class Solver(object):
         iterations_per_epoch = max(num_train // self.batch_size, 1)
         num_iterations = self.num_epochs * iterations_per_epoch
 
-        for t in range(num_iterations):
+        t = 0
+        val_acc_increasing = True
+        while t < num_iterations and val_acc_increasing:
+            t += 1
+            # check if validation accuracy decreased for last 3 steps
+            if ( len(self.val_acc_history) > 4 and
+                 self.val_acc_history[-1] < self.val_acc_history[-2] < self.val_acc_history[-3] < self.val_acc_history[-4]):
+                val_acc_increasing = False
+
             self._step()
 
             # Maybe print training loss
@@ -282,6 +290,8 @@ class Solver(object):
                 self.epoch += 1
                 for k in self.optim_configs:
                     self.optim_configs[k]['learning_rate'] *= self.lr_decay
+                    if self.optim_configs[k]['momentum'] < 0.9:
+                        self.optim_configs[k]['momentum'] += 0.5 / self.num_epochs
 
             # Check train and val accuracy on the first iteration, the last
             # iteration, and at the end of each epoch.

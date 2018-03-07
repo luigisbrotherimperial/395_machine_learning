@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
 
-def load_fer_data(fer_folder, num_train=28708, num_test=3588):
+def load_fer_data(fer_folder, num_train=28708, num_test=3588, subtract_mean=True):
     if not fer_folder.endswith('/'):
         fer_folder += '/'
 
@@ -29,6 +29,11 @@ def load_fer_data(fer_folder, num_train=28708, num_test=3588):
             print(i, 'of', num_test, 'testing images loaded')
         X_test[i] = img_to_array(load_img(fer_folder + test_df['img'][i]))
         y_test[i] = test_df["emotion"][i]
+
+    if subtract_mean:
+        mean_image = X_train.mean(axis=0)
+        X_train = X_train - mean_image
+        X_test = X_test - mean_image
 
     print("X_train shape: " + str(X_train.shape))
     print("y_train shape: " + str(y_train.shape))

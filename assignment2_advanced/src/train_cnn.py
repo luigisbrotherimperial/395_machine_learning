@@ -74,24 +74,30 @@ def train_model(train_file="",
         model.add(keras.layers.advanced_activations.PReLU(init='zero', weights=None))
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(2, 2)))
         model.add(MaxPooling2D(pool_size=(5, 5), strides=(2, 2)))
+        model.add(Dropout(0.2))
 
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(1, 1)))
         model.add(Conv2D(64, (3, 3)))
         model.add(keras.layers.advanced_activations.PReLU(init='zero', weights=None))
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(1, 1)))
+        model.add(Dropout(0.2))
+
         model.add(Conv2D(64, (3, 3)))
         model.add(keras.layers.advanced_activations.PReLU(init='zero', weights=None))
         model.add(keras.layers.convolutional.AveragePooling2D(pool_size=(3, 3), strides=(2, 2)))
+        model.add(Dropout(0.2))
 
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(1, 1)))
         model.add(Conv2D(128, (3, 3)))
         model.add(keras.layers.advanced_activations.PReLU(init='zero', weights=None))
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(1, 1)))
+        model.add(Dropout(0.2))
+
         model.add(Conv2D(128, (3, 3)))
         model.add(keras.layers.advanced_activations.PReLU(init='zero', weights=None))
-
         model.add(keras.layers.convolutional.ZeroPadding2D(padding=(1, 1)))
         model.add(keras.layers.convolutional.AveragePooling2D(pool_size=(3, 3), strides=(2, 2)))
+        model.add(Dropout(0.2))
 
         model.add(Flatten())
         model.add(Dense(1024))

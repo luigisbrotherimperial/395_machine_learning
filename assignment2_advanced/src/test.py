@@ -139,6 +139,28 @@ if __name__ == '__main__':
     test_df = labels[labels['img'].apply(lambda x: x[:4] == 'Test')].sort_values('img').reset_index()
     print('test_df:', test_df.head(5))
 
+    con_mat = confusion_matrix(predictions, test_df['emotion'])
+    print("confusion matrix: \n")
+    print(con_mat)
+
+    print("confusion matrix percentage: \n")
+    con_mat_perc = confusion_matrix_percentage(con_mat)
+    print(con_mat_perc)
+
+    print("\n classification rate:")
+    print(classification_rate(con_mat))
+
+    prec = precision(con_mat)
+    print("\n precision:")
+    print(np.round(prec,2))
+    rec = recall(con_mat)
+    print("\n recall:")
+    print(np.round(rec,2))
+    f1 = f1_measure(prec, rec)
+    print("\n f1 measure:")
+    print(np.round(f1,2))
+
+
     # test deep_fer_model - question 6
     preds = test_deep_fer_model()
 

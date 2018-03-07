@@ -1,23 +1,21 @@
 395 Machine Learning: Assignment 2
 =====================================
 
-Please notice that this year, we have an intermediate and an advanced version
-for the second assignment. Identify if your group consists of:
 
-1. Master's Computing students: You **must** complete this advanced assignment
-(`manuals/assignment2_advanced.md`, pdf format is also available).
-2. Non Master's Computing students
-(Bachelor's Computing/non-Computing/external/exchange): We recommend you
-complete the the intermediate assignment which is available on the group web
-site for download. Optionally: You **can** also choose this advanced assignment,
- it is up to you.
-3. Mixed of Master's Computing and non Master's Computing students: You
- **must** complete the advanced assignment (`manuals/assignment2_advanced.md`,
- pdf format is also available).
+### Required packages
+* pandas
+* keras v 2.1.4
+* tensorflow 1.6.0
+* Pillow
+* bayesian-optimization
+* h5py 
 
-## Required packages
-pandas
-keras
-tensorflow
-Pillow
-bayesian-optimization
+### Running test.py for CNN
+[test.py](../assignment2_advanced/src/test.py) is setup as a unittest file. Please, if that is not intended, 
+ take the file [cnn_test.py](../assignment2_advanced/src/cnn_test.py) instead.
+
+For running the model with your test data, please either delete the [Test](../assignment2_advanced/data/Test)
+and [labels](../assignment2_advanced/data/labels) folders and put new Test and labels folders with all your images 
+exactly in the same place or specify the paths to your data in test.py accordingly. 
+
+The functions in test.py and cnn_test.py also do the appropriate preprocessing for testing. 

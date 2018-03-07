@@ -15,8 +15,8 @@ accuracy on the validation set.
 ###########################################################################
 
 # settings
-num_train_images = 10000 # out of 28708
-num_test_images = 1000 # out of 3588
+num_train_images = 28708 # out of 28708
+num_test_images = 3588 # out of 3588
 
 # load images
 PATH = os.getcwd()
@@ -28,21 +28,26 @@ data = {
   'X_val': X_val, 'y_val': y_val,
 }
 
+# make grayscale
+data['X_train'] = data['X_train'].mean(axis=3)
+data['X_val'] = data['X_val'].mean(axis=3)
+
 # Create net and solver and train
-model = FullyConnectedNet(hidden_dims=[60, 75],
+model = FullyConnectedNet(hidden_dims=[1000, 1000],
                           input_dim=np.prod(data['X_train'].shape[1:]),
                           num_classes=len(np.unique(data['y_train'])),
                           dropout=0,
-                          reg=0.2,
+                          reg=0.0,
                           weight_scale=1e-2)
 
 solver = Solver(model, data,
                 update_rule='sgd_momentum', # ['sgd', 'sgd_momentum']
                 optim_config={
-                  'learning_rate': 2e-3,
+                  'learning_rate': 1e-3,
+                  'momentum': 0.95
                 },
                 lr_decay=0.95,
-                num_epochs=100,
+                num_epochs=60,
                 batch_size=100,
                 print_every=100)
 solver.train()

@@ -13,7 +13,7 @@ from assignment2_advanced.src.utils.evaluate_cnn import confusion_matrix, confus
     f1_measure, precision, recall, classification_rate
 
 
-def test_deep_fer_model(img_folder = "../data/", model="../data/model/model.h5"):
+def test_deep_fer_model(img_folder = "data/", model="data/model/model.h5"):
     """
     Given a folder with images, load the images and your best model to predict the facial expressions of each image.
     Args:
@@ -130,12 +130,8 @@ def test_fer_model(img_folder, model="fer_model.pickle", mean_image_file='mean_i
     return preds
 
 if __name__ == '__main__':
-    import os
-    import pandas as pd
-
-    PATH = os.getcwd()
-    print('PATH:', PATH)
-    img_folder = PATH + '/datasets/FER2013/Test/'
+    # test fer_model - question 5
+    img_folder = 'datasets/FER2013/Test/'
     predictions = test_fer_model(img_folder)
     print('preds:', predictions[:5])
 
@@ -143,4 +139,6 @@ if __name__ == '__main__':
     test_df = labels[labels['img'].apply(lambda x: x[:4] == 'Test')].sort_values('img').reset_index()
     print('test_df:', test_df.head(5))
 
+    # test deep_fer_model - question 6
     preds = test_deep_fer_model()
+

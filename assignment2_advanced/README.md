@@ -9,6 +9,7 @@
 * Pillow
 * bayesian-optimization
 * h5py 
+* scikit-image
 
 ### Running test.py for CNN
 [test.py](../assignment2_advanced/src/test.py) is setup as a unittest file. Please, if that is not intended, 

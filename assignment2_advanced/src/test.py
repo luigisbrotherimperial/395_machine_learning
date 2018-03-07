@@ -1,6 +1,19 @@
-from assignment2_advanced.src.utils.load_fer import load_fer_data
+import keras
+import matplotlib.pyplot as plt
+import glob
+from PIL import Image
+import numpy as np
+import skimage
+from skimage.color import rgb2gray
+import pandas as pd
+import os
+import random
 
-def test_fer_model(img_folder, model="/path/to/model"):
+from assignment2_advanced.src.utils.evaluate_cnn import confusion_matrix, confusion_matrix_percentage, \
+    f1_measure, precision, recall
+
+
+def test_deep_fer_model(img_folder = "../data/", model="../data/model/model.h5"):
     """
     Given a folder with images, load the images and your best model to predict the facial expressions of each image.
     Args:
@@ -8,33 +21,69 @@ def test_fer_model(img_folder, model="/path/to/model"):
     Returns:
     - preds: A numpy vector of size N with N being the number of images in img_folder.
     """
-    preds = None
+    keras_model = keras.models.load_model(model)
 
-    # load images
-    #X_train, y_train, X_val, y_val = load_fer_data(img_folder, 0, 100)
-    test_filelist = sorted(glob.glob(img_folder + '/*.jpg'))
-    num_test_images = len(test_filelist)
-    X_test = np.ndarray(shape=(num_test_images, 48, 48, 3), dtype=np.float32)
-    for i in range(num_test_images):
-        if i % 100 == 0:
-            print(i, 'of', num_test_images, 'testing images loaded')
-        X_test[i] = img_to_array(load_img(test_filelist[i]))
-    data = {
-      'X_train': X_train, 'y_train': y_train,
-      'X_val': X_val, 'y_val': y_val,
-    }
+    X_test, y_test = load_and_preprocess_imgs(img_folder)
 
-    # load model
+    X_test = X_test.reshape(X_test.shape[0], 48,48,1)
 
+    score = keras_model.evaluate(X_test, y_test, verbose=0)
+    print('Test loss:', score[0])
+    print('Test accuracy:', score[1])
 
-    # predict expressions
+    preds = keras_model.predict_classes(X_test)
+    con_mat = confusion_matrix(preds,np.argmax(y_test, axis=1))
+    print("confusion matrix: \n")
+    print(con_mat)
+    assert(np.sum(con_mat) == X_test.shape[0])
+    print("confusion matrix percentage: \n")
+    con_mat_perc = confusion_matrix_percentage(con_mat)
+    print(con_mat_perc)
+
+    prec = precision(con_mat)
+    print("\n precision:")
+    print(np.round(prec,2))
+    rec = recall(con_mat)
+    print("\n recall:")
+    print(np.round(rec,2))
+    f1 = f1_measure(prec, rec)
+    print("\n f1 measure:")
+    print(np.round(f1,2))
 
     return preds
 
-if __name__ == '__main__':
-    import os
 
-    PATH = os.getcwd()
-    print('PATH:', PATH)
-    img_folder = PATH + '/datasets/FER2013'
-    test_fer_model(img_folder, model="/path/to/model")
+def load_and_preprocess_imgs(path_data):
+    path_labels = path_data + "labels/labels_public.txt"
+    path_x_mean = path_data + "model/x_mean.npy"
+    path_x_std = path_data + "model/x_std.npy"
+
+    x_mean = np.load(path_x_mean)
+    x_std = np.load(path_x_std)
+
+    image_list = sorted(glob.glob(path_data+"/Test/*.jpg"))
+    labels = pd.read_table(path_labels, delimiter=",").sort_values('img')
+
+    x = np.ndarray.astype(np.array([np.array(Image.open(fname)) for fname in image_list]), "float64")    # only use 1 channel. images are grayscale
+    x = skimage.color.rgb2gray(x)
+    x -= x_mean
+    x /= x_std
+
+    print("x_mean: "+ str(x.mean()))
+
+    test_df = labels[labels['img'].apply(lambda x: x[:4] == 'Test')].reset_index()
+    num_test = x.shape[0]
+    y = np.zeros(num_test, int)
+    for i in range(num_test):
+        y[i] = test_df["emotion"][i]
+
+    x = x.reshape(x.shape[0], 48,48,1)
+
+    y = keras.utils.to_categorical(y,7)
+
+    print("x shape:  " + str(x.shape))
+    print("y shape:  " + str(y.shape))
+    return x,y
+
+if __name__ == '__main__':
+    preds = test_deep_fer_model()

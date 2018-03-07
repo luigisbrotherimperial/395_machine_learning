@@ -7,11 +7,11 @@ from skimage.color import rgb2gray
 import pandas as pd
 
 
-from utils.evaluate_cnn import confusion_matrix, confusion_matrix_percentage, \
-    f1_measure, precision, recall
+from assignment2_advanced.src.utils.evaluate_cnn import confusion_matrix, confusion_matrix_percentage, \
+    f1_measure, precision, recall, classification_rate
 
 
-def test_deep_fer_model(img_folder = "../data/", model="../data/model/model.h5"):
+def prediction(img_folder = "../data/", model="../data/model/model.h5"):
     """
     Given a folder with images, load the images and your best model to predict the facial expressions of each image.
     Args:
@@ -37,6 +37,9 @@ def test_deep_fer_model(img_folder = "../data/", model="../data/model/model.h5")
     print("confusion matrix percentage: \n")
     con_mat_perc = confusion_matrix_percentage(con_mat)
     print(con_mat_perc)
+
+    print("\n classification rate:")
+    print(classification_rate(con_mat))
 
     prec = precision(con_mat)
     print("\n precision:")
@@ -84,5 +87,5 @@ def load_and_preprocess_imgs(path_data):
     return x,y
 
 if __name__ == '__main__':
-    preds = test_deep_fer_model()
+    preds = prediction()
 

@@ -16,15 +16,15 @@ def confusion_matrix_percentage(con_mat):
         for j in range(con_mat_percentage.shape[1]):
             con_mat_percentage[i][j] /= row_sum
 
-    return np.transpose(np.round(con_mat_percentage,2))
+    return np.transpose(np.round(con_mat_percentage*100,2))
 
 #######################################         F1 mesure        #######################################
 def f1_measure(precision_rate, recall_rate):
     # initialize the Fa measure array
-    rate = np.zeros((6))
+    rate = np.zeros((7))
 
     # compute the Fa measure for each class
-    for i in range(6):
+    for i in range(7):
         if precision_rate[i] == 0 or recall_rate[i] == 0:
             rate[i] = 0
         else:
@@ -37,10 +37,10 @@ def f1_measure(precision_rate, recall_rate):
 #######################################         precision        #######################################
 def precision(conf_matrix):
     # initialize the precision rate array
-    rate = np.zeros((6))
+    rate = np.zeros((7))
 
     # compute the precision rate for each class
-    for i in range(6):
+    for i in range(7):
         if sum(conf_matrix[:, i]) == 0:
             rate[i] = conf_matrix[i, i] * 100
         else:
@@ -52,10 +52,10 @@ def precision(conf_matrix):
 #######################################         recall        #######################################
 def recall(conf_mnatrix):
     # initialize the recall rate array
-    rate = np.zeros((6))
+    rate = np.zeros((7))
 
     # compute the recall rate for each class
-    for i in range(6):
+    for i in range(7):
         if sum(conf_mnatrix[i, :]) == 0:
             rate[i] = conf_mnatrix[i, i] * 100
         else:
@@ -65,3 +65,11 @@ def recall(conf_mnatrix):
     return rate
 
 
+#######################################         classification rate        #######################################
+def classification_rate(conf_matrix):
+    # compute the classification rate
+
+    rate = sum(conf_matrix.diagonal()) / conf_matrix.sum()
+
+    # return the classification rate
+    return rate

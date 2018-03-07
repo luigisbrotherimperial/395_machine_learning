@@ -1,6 +1,7 @@
 import glob
 import pandas as pd
 import numpy as np
+import pickle
 from keras.preprocessing.image import img_to_array, load_img
 
 def load_fer_data(fer_folder, num_train=28708, num_test=3588, subtract_mean=True):
@@ -31,7 +32,9 @@ def load_fer_data(fer_folder, num_train=28708, num_test=3588, subtract_mean=True
         y_test[i] = test_df["emotion"][i]
 
     if subtract_mean:
+        # get mean image of train data and pickle for test later
         mean_image = X_train.mean(axis=0)
+        pickle.dump(mean_image, open('mean_image.pickle', 'wb'))
         X_train = X_train - mean_image
         X_test = X_test - mean_image
 

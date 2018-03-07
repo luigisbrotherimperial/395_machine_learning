@@ -62,13 +62,13 @@ def model_accuracy(hidden_dims_1, hidden_dims_2, learning_rate_exp, momentum, ba
     solver.train()
 
     # calculate accuracy
-    return solver.check_accuracy(X_val, y_val, batch_size=batch_size)
+    return solver.check_accuracy(data['X_val'], data['y_val'], batch_size=batch_size)
 
 bo = BayesianOptimization(model_accuracy,
                           {'hidden_dims_1': (20, 1000),
                            'hidden_dims_2': (20, 1000),
                            'reg': (0, .5),
-                           'learning_rate_exp': (-5, -4),
+                           'learning_rate_exp': (-5, -3),
                            'momentum': (0.0, 1.0),
                            'batch_size': (50, 200)})
 

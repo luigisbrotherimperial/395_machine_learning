@@ -1,6 +1,9 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
+import pickle
 
 from assignment2_advanced.src.fcnet import FullyConnectedNet
 from assignment2_advanced.src.utils.solver import Solver
@@ -33,24 +36,27 @@ data['X_train'] = data['X_train'].mean(axis=3)
 data['X_val'] = data['X_val'].mean(axis=3)
 
 # Create net and solver and train
-model = FullyConnectedNet(hidden_dims=[1000, 1000],
+model = FullyConnectedNet(hidden_dims=[535, 555],
                           input_dim=np.prod(data['X_train'].shape[1:]),
                           num_classes=len(np.unique(data['y_train'])),
                           dropout=0,
-                          reg=0.0,
+                          reg=0.4293,
                           weight_scale=1e-2)
 
 solver = Solver(model, data,
                 update_rule='sgd_momentum', # ['sgd', 'sgd_momentum']
                 optim_config={
                   'learning_rate': 1e-3,
-                  'momentum': 0.95
+                  'momentum': 0.0
                 },
                 lr_decay=0.95,
                 num_epochs=60,
-                batch_size=100,
+                batch_size=50,
                 print_every=100)
 solver.train()
+
+acc = solver.check_accuracy(data['X_val'], data['y_val'], batch_size=50)
+print('Validation accuracy:', acc)
 
 # Plot errors
 plt.subplot(2, 1, 1)
@@ -66,7 +72,10 @@ plt.plot([0.5] * len(solver.val_acc_history), 'k--')
 plt.xlabel('Epoch')
 plt.legend(loc='lower right')
 plt.gcf().set_size_inches(15, 12)
-plt.show()
+plt.savefig('q5_FER_model.png')
+
+# pickle model
+pickle.dump(model, open('fer_model.pickle', 'wb'))
 
 ##############################################################################
 #                             END OF YOUR CODE                               #

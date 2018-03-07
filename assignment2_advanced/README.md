@@ -11,6 +11,13 @@
 * h5py 
 * scikit-image
 
+### Running test.py for question 5
+The function test_fer_model takes three parameters:
+ * img_folder # where the test images are stored
+ * model="fer_model.pickle" # location of the model pickle
+ * mean_image_file='mean_image.pickle' # location of the mean training image pickle
+Depending on where this function is called the defaults for the pickle files may not work and they will need to be entered manually. These files are located in assignment2_advanced/src/.
+
 ### Running test.py for CNN
 [test.py](../assignment2_advanced/src/test.py) is setup as a unittest file. Please, if that is not intended, 
  take the file [cnn_test.py](../assignment2_advanced/src/cnn_test.py) instead.

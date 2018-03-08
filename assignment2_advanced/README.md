@@ -11,6 +11,9 @@
 * h5py 
 * scikit-image
 
+### IMPORTANT
+Currently 'datasets' is a symbolic link to a shared copy of the data in vol/bitbucket/ in the lab. If any of the code which requires the data is run on a non-lab computer it will crash. To solve this, please delete the symbolic link and replace it with a a directory named 'datasets' containing the data as originally planned.
+
 ### Running test.py for question 5
 The function test_fer_model takes three parameters:
  * img_folder # where the test images are stored
